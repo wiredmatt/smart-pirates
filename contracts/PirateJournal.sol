@@ -4,6 +4,7 @@ pragma solidity >=0.4.22 <0.9.0;
 struct Pirate {
     string name;
     string surname;
+    address publicKey;
 }
 
 struct JournalEntry {
@@ -18,8 +19,13 @@ contract PirateJournal {
     //  page number => entry
     mapping(uint256 => JournalEntry) public entries;
 
+    modifier onlyAuthor() {
+        require(msg.sender == author.publicKey, "You're not the author of this journal!");
+        _;
+    }
+
     constructor(string memory name, string memory surname) {
-        author = Pirate(name, surname);
+        author = Pirate(name, surname, msg.sender);
     }
 
     function recordEntry(
@@ -27,7 +33,7 @@ contract PirateJournal {
         string memory title,
         string memory date,
         string memory text
-    ) public {
+    ) external onlyAuthor {
         entries[page] = JournalEntry(title, date, text);
     }
 }

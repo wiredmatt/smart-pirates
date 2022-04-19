@@ -1,45 +1,114 @@
-# Smart Pirates
+# The pirate Journal
 
-## Setting things up
+## About
 
-### Installing NodeJS
+This is a simple implementation of [storage](https://ethereum.org/en/developers/docs/storage/). A blockchain is in esence, a public database, which is the ideal storage medium for a pirate to record their journey, so their tales won't die with themselves deep in the sea.
 
-1. Install [NVM](https://github.com/nvm-sh/nvm#install--update-script) (Node Version Manager)
+## Contents
 
-2. Install Node v14.15.0:
+This project contains a single smart Contract, [`PirateJournal`](./contracts/PirateJournal.sol).
+
+## Inspecting the smart contract
+
+### License?
+
+As you can see in the first line of the code there is a license specified, this is a code standard for smart contracts, you should choose yours wisely.
+
+```solidity
+// SPDX-License-Identifier: MIT
+```
+If you're thinking *why?*: Because every smart contract is public in the blockchain, but that doesn't necessarily mean that whoever sees the code can copy and reuse it, or at least not under certain conditions, for example the MIT license tells its readers:
 
 ```
-nvm install 14.15.0
+Copyright (c) <year> <copyright holders>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
-3. Select Node v14.15.0:
+Meaning that whoever uses and modifies the code should leave the copyright notice and the original license. You can check all the available license and choose yours here at [choosealicense](https://choosealicense.com/licenses/).
+
+In this case, this means that any pirate can freely copy the code and add more functionality to the contract!
+
+### Structs
+
+There are two `structs` defined in this contract, and as you can guess a `struct` is a custom type, many programming languages have this feature, for example [Typescript](https://www.typescriptlang.org/) and [Rust](https://www.rust-lang.org/), a `struct` is used only for **holding data**, it can't contain functions.
+
+```solidity
+struct Pirate {
+    string name;
+    string surname;
+    address publicKey;
+}
+
+struct JournalEntry {
+    string title;
+    string date;
+    string text;
+}
 ```
-nvm use 14.15.0
-```
 
-### Installing the Truffle Suite
+A `Pirate` has a `name` and a `surname`; but this is a smart pirate, so he also has a [web3 wallet](https://web3.hashnode.com/what-is-a-web3-wallet) which he uses to prove his identity and sign his journal entries!
 
-1. Install truffle core:
+A `JournalEntry` has a `title`, a `date` and its `text`.
 
-```
-npm i -g truffle
-```
+### Contract
 
-2. Install Ganache:
+You can think of a contract as a class, they are actually the exact same thing. A class has attributes and functions, and so does a Contract.
 
-Download it from [here](https://trufflesuite.com/ganache/), this will be our local ethereum node, so keep the program opened while you are in local development.
+For example, the `PirateJournal` contract has the followings:
 
-### Setting env variables
+- Attributes: 
 
-Create a file with the name ".env" at the root of this project, and fill in the following variables:
+    * `author`: The pirate that owns this journal
+    * `entries`: A Hashmap that maps a `page number` with a `JournalEntry`, for example:
+    
+    ```json
+    {
+        1: {
+            "title": "My Journey learning Solidity Begins",
+            "date": "2022/04/20",
+            "text": "Today I learned how to create a Smart Contract!"
+        }
+    }
+    ``` 
+- Functions:
 
-```
-PRIVATE_KEY_DEV=s0m3privatek3ythatyougetfromganach3
-```
-To get a private key from ganache, click on the key icon all the way to the right.
-![ganache-private-keys](./docs/ganache-ss)
+    * `constructor`: a function that gets executed when the contract gets deployed, it receives the name and surname of the owner of the journal as parameters.
 
-## Learn to develop smart contracts with pirates
+    ```solidity
+    constructor(string memory name, string memory surname) {
+        author = Pirate(name, surname, msg.sender);
+    }
+    ```
 
-Check the branches in this repository, they are numbered based on the level of complexity of each example. Switch to the branch of your interest, and you'll see a fully detailed example on how to implement it, not only that but there'll also be proper documentation explaining everything relevant.
+    There is something interesting here, `msg.sender`, what is it? Well, in short, it is the address (public key) of the pirate deploying this contract! `msg` is a reserved keyword that stores many useful things when a function is called.
 
+    * `recordEntry`: This function adds content to a page in the journal (as you can guess, it can also modify the existing data if there was any in the specified page)
+
+    ```solidity
+    function recordEntry(
+        uint256 page,
+        string memory title,
+        string memory date,
+        string memory text
+    ) external onlyAuthor {
+        entries[page] = JournalEntry(title, date, text);
+    }
+    ```
+
+    What's `external`? It is a [function modifier](https://www.tutorialspoint.com/solidity/solidity_function_modifiers.htm), that specifies that this function can only be called from outside of this contract, meaning that I couldn't call this function from another function.
+
+    What's `onlyAuthor`? This modifier checks that the one calling has the same public key as the one who created (deployed) this contract
