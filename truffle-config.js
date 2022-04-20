@@ -18,6 +18,8 @@
  *
  */
 
+const config = require("./config");
+
 // const HDWalletProvider = require('@truffle/hdwallet-provider');
 //
 // const fs = require('fs');
@@ -45,7 +47,7 @@ module.exports = {
       host: "127.0.0.1", // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-      privateKey: config.privateKeyDev 
+      privateKey: config.privateKeyDev
     },
     // Another network with more advanced options...
     // advanced: {

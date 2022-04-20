@@ -2,17 +2,27 @@
 
 ## About
 
-This is a simple implementation of [storage](https://ethereum.org/en/developers/docs/storage/). A blockchain is in esence, a public database, which is the ideal storage medium for a pirate to record their journey, so their tales won't die with themselves deep in the sea.
+This is a simple implementation of [storage](https://ethereum.org/en/developers/docs/storage/). A blockchain is in esence, a public database, which is the ideal storage medium for a pirate to record their journey, so their tales won't die with themselves deep in the sea
+
+## Set up
+
+1. Create a `.env` file at the root of the project, populate the values according to what's in the `.env.example` file
+
+2. Install dependencies dependencies:
+
+```bash
+yarn install 
+```
 
 ## Contents
 
-This project contains a single smart Contract, [`PirateJournal`](./contracts/PirateJournal.sol).
+This project contains a single smart Contract, [`PirateJournal`](./contracts/PirateJournal.sol)
 
 ## Inspecting the smart contract
 
 ### License?
 
-As you can see in the first line of the code there is a license specified, this is a code standard for smart contracts, you should choose yours wisely.
+As you can see in the first line of the code there is a license specified, this is a code standard for smart contracts, you should choose yours wisely
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -38,13 +48,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-Meaning that whoever uses and modifies the code should leave the copyright notice and the original license. You can check all the available license and choose yours here at [choosealicense](https://choosealicense.com/licenses/).
+Meaning that whoever uses and modifies the code should leave the copyright notice and the original license. You can check all the available license and choose yours here at [choosealicense](https://choosealicense.com/licenses/)
 
 In this case, this means that any pirate can freely copy the code and add more functionality to the contract!
 
 ### Structs
 
-There are two `structs` defined in this contract, and as you can guess a `struct` is a custom type, many programming languages have this feature, for example [Typescript](https://www.typescriptlang.org/) and [Rust](https://www.rust-lang.org/), a `struct` is used only for **holding data**, it can't contain functions.
+There are two `structs` defined in this contract, and as you can guess a `struct` is a custom type, many programming languages have this feature, for example [Typescript](https://www.typescriptlang.org/) and [Rust](https://www.rust-lang.org/), a `struct` is used only for **holding data**, it can't contain functions
 
 ```solidity
 struct Pirate {
@@ -62,11 +72,11 @@ struct JournalEntry {
 
 A `Pirate` has a `name` and a `surname`; but this is a smart pirate, so he also has a [web3 wallet](https://web3.hashnode.com/what-is-a-web3-wallet) which he uses to prove his identity and sign his journal entries!
 
-A `JournalEntry` has a `title`, a `date` and its `text`.
+A `JournalEntry` has a `title`, a `date` and its `text`
 
 ### Contract
 
-You can think of a contract as a class, they are actually the exact same thing. A class has attributes and functions, and so does a Contract.
+You can think of a contract as a class, they are actually the exact same thing. A class has attributes and functions, and so does a Contract
 
 For example, the `PirateJournal` contract has the followings:
 
@@ -86,7 +96,7 @@ For example, the `PirateJournal` contract has the followings:
     ``` 
 - Functions:
 
-    * `constructor`: a function that gets executed when the contract gets deployed, it receives the name and surname of the owner of the journal as parameters.
+    * `constructor`: a function that gets executed when the contract gets deployed, it receives the name and surname of the owner of the journal as parameters
 
     ```solidity
     constructor(string memory name, string memory surname) {
@@ -94,7 +104,7 @@ For example, the `PirateJournal` contract has the followings:
     }
     ```
 
-    There is something interesting here, `msg.sender`, what is it? Well, in short, it is the address (public key) of the pirate deploying this contract! `msg` is a reserved keyword that stores many useful things when a function is called.
+    There is something interesting here, `msg.sender`, what is it? Well, in short, it is the address (public key) of the pirate deploying this contract! `msg` is a reserved keyword that stores many useful things when a function is called
 
     * `recordEntry`: This function adds content to a page in the journal (as you can guess, it can also modify the existing data if there was any in the specified page)
 
@@ -109,6 +119,38 @@ For example, the `PirateJournal` contract has the followings:
     }
     ```
 
-    What's `external`? It is a [function modifier](https://www.tutorialspoint.com/solidity/solidity_function_modifiers.htm), that specifies that this function can only be called from outside of this contract, meaning that I couldn't call this function from another function.
+    What's `external`? It is a [function modifier](https://www.tutorialspoint.com/solidity/solidity_function_modifiers.htm), that specifies that this function can only be called from outside of this contract, meaning that I couldn't call this function from another function
 
     What's `onlyAuthor`? This modifier checks that the one calling has the same public key as the one who created (deployed) this contract
+
+## Creating a journal (deploying the smart contract)
+
+To deploy a smart contract means to upload it to the blockchain, so other people (and even other contracts) can interact with it, in this case, once the contract is deployed, the pirate will be able to record journal entries that'll be stored in the blockchain
+
+### Steps
+
+1. Make sure you have Ganache running, and that it's listening in the port 8545.
+
+2. Open the terminal and run the following commands:
+
+    2.1 Compile the contract
+    ```bash
+    truffle compile --all
+    ```
+
+    2.2 Deploy it
+    ```bash
+    truffle migrate --network development
+    ```
+
+    2.3 Inspect from Ganache
+
+    Check in the transactions tab, you should see one tagged with "Contract Creation".
+
+## Adding an entry to the journal
+
+This is no pirate journal if it's empty, let's fill it with some adventures!
+
+2. Open the terminal and run the following commands:
+
+    truffle console --network development

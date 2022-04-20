@@ -20,7 +20,10 @@ contract PirateJournal {
     mapping(uint256 => JournalEntry) public entries;
 
     modifier onlyAuthor() {
-        require(msg.sender == author.publicKey, "You're not the author of this journal!");
+        require(
+            msg.sender == author.publicKey,
+            "You're not the author of this journal!"
+        );
         _;
     }
 
@@ -33,7 +36,8 @@ contract PirateJournal {
         string memory title,
         string memory date,
         string memory text
-    ) external onlyAuthor {
+    ) external onlyAuthor returns (JournalEntry memory) {
         entries[page] = JournalEntry(title, date, text);
+        return entries[page];
     }
 }
