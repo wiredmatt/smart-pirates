@@ -8,11 +8,19 @@ This is a simple implementation of [storage](https://ethereum.org/en/developers/
 
 1. Create a `.env` file at the root of the project, populate the values according to what's in the `.env.example` file
 
-2. Install dependencies dependencies:
+2. Install project dependencies:
 
 ```bash
 yarn install 
 ```
+
+3. Install the truffle suite
+
+```bash
+npm i -g truffle
+```
+
+Download [Ganache](https://trufflesuite.com/ganache/)
 
 ## Contents
 
