@@ -137,28 +137,38 @@ To deploy a smart contract means to upload it to the blockchain, so other people
 
 ### Steps
 
-1. Make sure you have Ganache running, and that it's listening in the port 8545.
-
 2. Open the terminal and run the following commands:
+
+    2.0 Open the truffle console
+    ```bash
+    truffle develop
+    ```
 
     2.1 Compile the contract
     ```bash
-    truffle compile --all
+    compile --all
     ```
 
     2.2 Deploy it
     ```bash
-    truffle migrate --network development
+    migrate --network development
     ```
 
-    2.3 Inspect from Ganache
-
-    Check in the transactions tab, you should see one tagged with "Contract Creation".
-
+    Now, don't close the truffle console! You'll need it for the next part
 ## Adding an entry to the journal
 
 This is no pirate journal if it's empty, let's fill it with some adventures!
 
-2. Open the terminal and run the following commands:
+2.0 Get the journal
+```bash
+const Journal = new web3.eth.Contract(require("./build/contracts/PirateJournal.json").abi, "0x3Ba12a18769dfE0413665864543fC47312835B3F") # the first parameter is the ABI, and the second, the address to where it was deployed to, you can get the later from logs/deploy-development.log.json
+```
 
-    truffle console --network development
+2.1 Add an entry to it
+```bash
+const entry = await Journal.methods.recordEntry(1, "My journey learning begins", "2022/04/21", "Today I learned to write my first Smart Contract with Solidity, it was great!").send({ from: "0xbdD2d34Ed1eEA17Ec67dD23Bb61Ea84Da4F71650" }); # The address specified in from should match the public key of the pirate, stored in logs/deploy-development.log.json
+```
+
+2.2 Read the entry
+
+await Journal.methods.entries(1).call();

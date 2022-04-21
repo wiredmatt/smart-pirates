@@ -37,7 +37,8 @@ contract PirateJournal {
         string memory date,
         string memory text
     ) external onlyAuthor returns (JournalEntry memory) {
-        entries[page] = JournalEntry(title, date, text);
+        JournalEntry memory entry = JournalEntry(title, date, text);
+        entries[page] = entry;
         return entries[page];
     }
 }
