@@ -1,9 +1,7 @@
-const config = require("../config");
 const fs = require("fs/promises");
+const fname = __dirname + `/../logs/deploy-${process.env.NETWORK}.log.json`;
 
-const fname = `logs/deploy-${config.network}.log.json`;
-
-module.exports = {
+export default {
   setup: async () => {
     console.log("setting up");
 
@@ -22,10 +20,10 @@ module.exports = {
     return Promise.resolve();
   },
   read: () => {
-    return require(`../${fname}`);
+    return require(fname);
   },
-  write: async (data) => {
-    return await fs.writeFile(fname, JSON.stringify(data, null, 2), (e) =>
+  write: async (data: any) => {
+    return await fs.writeFile(fname, JSON.stringify(data, null, 2), (e: any) =>
       console.log(e)
     );
   },

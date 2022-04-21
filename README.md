@@ -6,21 +6,13 @@ This is a simple implementation of [storage](https://ethereum.org/en/developers/
 
 ## Set up
 
-1. Create a `.env` file at the root of the project, populate the values according to what's in the `.env.example` file
+1. Create a `.env` file at the root of the project, populate the values according to what's in the `.env.example` file (you can leave it as is).
 
 2. Install project dependencies:
 
 ```bash
 yarn install 
 ```
-
-3. Install the truffle suite
-
-```bash
-npm i -g truffle
-```
-
-Download [Ganache](https://trufflesuite.com/ganache/)
 
 ## Contents
 
@@ -131,44 +123,73 @@ For example, the `PirateJournal` contract has the followings:
 
     What's `onlyAuthor`? This modifier checks that the one calling has the same public key as the one who created (deployed) this contract
 
+## Hardhat
+
+Hardhat is the ethereum development framework that was used for this project, for a quick overview on what you can do with it (and to understand the commands that we'll be running from now on), open the terminal and run the following command:
+
+```bash
+yarn hardhat help
+```
+
+There are a lot of `tasks` here, the ones that we will be using are the following ones:
+
+1. `node`
+2. `compile`
+3. `create-journal`
+4. `record-entry`
+5. `read`
+6. `set-keys`
+
+To see what each of these do, run the command:
+
+```bash
+yarn hardhat help task # replace task with the actual name of the task that you wish to inspect 
+```
+
 ## Creating a journal (deploying the smart contract)
 
 To deploy a smart contract means to upload it to the blockchain, so other people (and even other contracts) can interact with it, in this case, once the contract is deployed, the pirate will be able to record journal entries that'll be stored in the blockchain
 
 ### Steps
 
-2. Open the terminal and run the following commands:
+1. Spin up an ethereum node, for this you can do it in two ways:
 
-    2.0 Open the truffle console
+    1.1 Open a new terminal and run (recommended)
     ```bash
-    truffle develop
+    yarn hardhat node
+    ``` 
+
+    2.2 Let the node run in the background
+    ```bash
+    yarn hardhat node & sleep 5
     ```
+
+2. In your main terminal, run the following commands:
 
     2.1 Compile the contract
     ```bash
-    compile --all
+    yarn hardhat compile
     ```
 
     2.2 Deploy it
     ```bash
-    migrate --network development
+    yarn hardhat create-journal Edward Newgate --network development # Feel free to replace Edward Newgate with your favourite pirate
     ```
 
-    Now, don't close the truffle console! You'll need it for the next part
+    And that's it, you have created a new journal for Edward Newgate.
+
 ## Adding an entry to the journal
 
 This is no pirate journal if it's empty, let's fill it with some adventures!
 
-2.0 Get the journal
 ```bash
-const Journal = new web3.eth.Contract(require("./build/contracts/PirateJournal.json").abi, "0x3Ba12a18769dfE0413665864543fC47312835B3F") # the first parameter is the ABI, and the second, the address to where it was deployed to, you can get the later from logs/deploy-development.log.json
+yarn hardhat record-entry 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 "My journey learning Solidity begins" "2022/04/21" "Today I learned how to create a decentralized journal to record my adventures!" --network development # replace the first argument with the address to which the journal was deployed to, you can check it in the file logs/deploy.
 ```
 
-2.1 Add an entry to it
+## Reading the entries of the journal
+
+To see what has been written in a page, run the following command:
+
 ```bash
-const entry = await Journal.methods.recordEntry(1, "My journey learning begins", "2022/04/21", "Today I learned to write my first Smart Contract with Solidity, it was great!").send({ from: "0xbdD2d34Ed1eEA17Ec67dD23Bb61Ea84Da4F71650" }); # The address specified in from should match the public key of the pirate, stored in logs/deploy-development.log.json
+yarn hardhat read 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 --network localhost # remember to replace the address and the page number
 ```
-
-2.2 Read the entry
-
-await Journal.methods.entries(1).call();
