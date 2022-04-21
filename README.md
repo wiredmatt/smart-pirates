@@ -183,7 +183,7 @@ To deploy a smart contract means to upload it to the blockchain, so other people
 This is no pirate journal if it's empty, let's fill it with some adventures!
 
 ```bash
-yarn hardhat record-entry 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 "My journey learning Solidity begins" "2022/04/21" "Today I learned how to create a decentralized journal to record my adventures!" --network development # replace the first argument with the address to which the journal was deployed to, you can check it in the file logs/deploy.
+yarn hardhat record-entry 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 "My journey learning Solidity begins" "2022/04/21" "Today I learned how to create a decentralized journal to record my adventures!" --network development # replace the first argument with the address to which the journal was deployed to, you can check it in the file logs/deploy-development.log.json
 ```
 
 ## Reading the entries of the journal

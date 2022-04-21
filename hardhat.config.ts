@@ -84,29 +84,23 @@ task("create-journal", "Creates a new Pirate Journal")
 
     console.log("New pirate Journal created at:", journal.address);
 
-    const PirateJournals = [
-      {
-        pirate: {
-          name: name,
-          surname: surname,
-          publickey: process.env.PUBLIC_KEY,
-        },
-        journalAddress: journal.address,
+    const PirateJournal = {
+      pirate: {
+        name: name,
+        surname: surname,
+        publickey: process.env.PUBLIC_KEY,
       },
-    ];
-
-    if (logFile.PirateJournals) {
-      PirateJournals.push(
-        logFile.PirateJournals.map((pj: PirateJournalJSON) => pj)
-      );
-    }
-
-    const data = {
-      ...logFile,
-      PirateJournals,
+      journalAddress: journal.address,
     };
 
-    await utils.write(data);
+    if (logFile.PirateJournals) {
+      logFile.PirateJournals.push(PirateJournal);
+      logFile.PirateJournals.reverse();
+    } else {
+      logFile.PirateJournals = [PirateJournal];
+    }
+
+    await utils.write(logFile);
   });
 
 task("record-entry", "Adds or modifies an entry in the journal")
