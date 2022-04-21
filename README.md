@@ -191,5 +191,5 @@ yarn hardhat record-entry 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 "My journ
 To see what has been written in a page, run the following command:
 
 ```bash
-yarn hardhat read 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 --network localhost # remember to replace the address and the page number
+yarn hardhat read 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 --network development # remember to replace the address and the page number
 ```
