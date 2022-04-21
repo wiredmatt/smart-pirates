@@ -193,3 +193,17 @@ To see what has been written in a page, run the following command:
 ```bash
 yarn hardhat read 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 --network development # remember to replace the address and the page number
 ```
+
+## Adding another pirate, and creating a new journal for him
+
+To add a new pirate get a new pair of keys from those that `yarn hardhat node` gives you, and run the following command:
+
+```bash 
+yarn hardhat set-keys 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 # privatekey publickey
+```
+
+Now you can repeat the process 
+
+1. Create journal
+2. Add entries
+3. Read the entries
