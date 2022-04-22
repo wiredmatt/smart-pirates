@@ -1,8 +1,18 @@
-# The pirate Journal
+# Gold and Doubloons
 
 ## About
 
-This is a simple implementation of [storage](https://ethereum.org/en/developers/docs/storage/). A blockchain is in esence, a public database, which is the ideal storage medium for a pirate to record their journey, so their tales won't die with themselves deep in the sea
+This is a simple implementation of [currencies](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/). 
+
+In the era of pirates, `doubloons` were the common currency.
+
+A [doubloon](https://en.wikipedia.org/wiki/Doubloon) is made out of `gold`.
+
+`Gold` is found in `mines`.
+
+You use `doubloons` to buy `bread`.
+
+Find a mine -> look for gold -> find it -> melt it and get doubloons out of it -> buy bread.
 
 ## Set up
 
@@ -21,7 +31,6 @@ This project contains multiple Smart Contracts, [`Gold`](./contracts/Gold.sol), 
 ## Inspecting the smart contracts
 
 ### Gold
-
 
 #### Imports
 
@@ -70,7 +79,7 @@ Because when you mine, you might not always find gold :(.
 
 ### Gold Mine
 
-```
+```solidity
 function lookForGold(uint256 spot) public payable {
     require(msg.value == EXPLORATION_FEE, "You should pay 0.1 ether");
     require(spot < spots.length, "Spot is out of bounds");
@@ -98,7 +107,6 @@ You should also choose a `spot` in which to look for some gold. Think of it this
 ```
 
 A mine can have 9 paths in which to look for gold, you can only choose one at a time.
-
 
 ### Doubloon
 
@@ -130,3 +138,23 @@ function approveMakeDoubloon(uint256 goldAmount) external {
 ```
 
 `approve` is an internal method of the ERC20 standard, it does exactly what was described before, it allows another contract to use your tokens on your behalf.
+
+### Bread
+
+Now with some doubloons you can buy bread!
+
+```solidity
+function bake() external {
+    uint256 amount = doubloon.allowance(msg.sender, address(this)) * 10;
+    doubloon.transferFrom(msg.sender, baker, amount); // pay the baker
+    _mint(msg.sender, amount); // bake the bread
+}
+
+function startTrade(uint256 doubloons) external {
+    doubloon.approve(address(this), doubloons);
+}
+```
+
+To buy bread, one needs to *start the trade*, by allowing to use a given amount of doubloons
+
+Then the bread will be baked, the pirate will receive 10 slices of bread for each doubloon paid!
