@@ -2,7 +2,7 @@
 
 ## About
 
-This is a simple implementation of [storage](https://ethereum.org/en/developers/docs/storage/). A blockchain is in esence, a public database, which is the ideal storage medium for a pirate to record their journey, so their tales won't die with themselves deep in the sea
+This is a simple implementation of [storage](https://ethereum.org/en/developers/docs/storage/). A blockchain is in esence, a public database, which is the perfect storage medium for pirates to record their journeys, so their tales won't die with themselves deep in the sea
 
 ## Set up
 
