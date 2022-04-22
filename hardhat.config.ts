@@ -246,6 +246,73 @@ task("make-doubloons", "Give your gold, receive doubloons")
     console.log("You now own $DBL", doubloons.toString());
   });
 
+task("create-bread", "Creates Bread").setAction(async (_, hre) => {
+  await utils.setup();
+  const logFile = utils.read();
+
+  if (!logFile.Doubloon) {
+    console.log("Deploy Doubloon first");
+    return;
+  }
+
+  const Bread = await hre.ethers.getContractFactory("Bread");
+  const bread = await Bread.deploy(
+    logFile.Doubloon.address,
+    process.env.BAKER!
+  );
+
+  await bread.deployed();
+
+  console.log("Bread deployed to:", bread.address);
+
+  logFile.Bread = {
+    address: bread.address,
+  };
+
+  await utils.write(logFile);
+});
+
+task("buy-bread", "Give your doubloons, receive bread")
+  .addPositionalParam(
+    "amount",
+    "The amount of doubloons you offer for bread",
+    undefined,
+    types.int,
+    false
+  )
+  .setAction(async ({ amount }, hre) => {
+    await utils.setup();
+    const logFile = utils.read();
+
+    if (!logFile.Bread) {
+      console.log("Deploy Bread first");
+      return;
+    }
+
+    const doubloon = await hre.ethers.getContractAt(
+      "Doubloon",
+      logFile.Doubloon.address
+    );
+
+    const bread = await hre.ethers.getContractAt(
+      "Bread",
+      logFile.Bread.address
+    );
+
+    const approveTx = await doubloon.approve(bread.address, amount);
+    await approveTx.wait();
+
+    await bread.bake();
+
+    const breadSlices = await bread.balanceOf(process.env.PUBLIC_KEY!);
+
+    console.log("You now own:", breadSlices.toString(), "slices of Bread!");
+    console.log("-----------------\n");
+    console.log(
+      "Now that you're fed, and have some coin on, you can continue your journey!"
+    );
+  });
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 

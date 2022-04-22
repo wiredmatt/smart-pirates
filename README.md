@@ -75,7 +75,7 @@ The rest that you'll see in this contract has to do with making a doubloon, gold
 
 ### Stone
 
-Because when you mine, you might not always find gold :(.
+Because when you mine, you might not always find gold :(
 
 ### Gold Mine
 
@@ -93,7 +93,7 @@ function lookForGold(uint256 spot) public payable {
 }
 ```
 
-To be able to find some gold, you have to pay a fee (to use the equipment and the paths built beforehand, duh). This is why this function has the modifier `payable`, this means that when you call this function you should send a specified amount of ETH, if you send less you won't be able to enter the mine.
+To be able to find some gold, you have to pay a fee (to use the equipment and the paths built beforehand, duh). This is why this function has the modifier `payable`, this means that when you call this function you should send a specified amount of ETH, if you send less you won't be able to enter the mine
 
 You should also choose a `spot` in which to look for some gold. Think of it this way:
 
@@ -106,7 +106,7 @@ You should also choose a `spot` in which to look for some gold. Think of it this
 
 ```
 
-A mine can have 9 paths in which to look for gold, you can only choose one at a time.
+A mine can have 9 paths in which to look for gold, you can only choose one at a time
 
 ### Doubloon
 
@@ -128,16 +128,13 @@ function makeDoubloon(uint256 goldAmount) external {
 }
 ```
 
-This function checks for an `allowance`. It's basically asking the Gold contract if the user really approves to burn a given amount of gold in exchange of doubloons. An allowance can be granted by calling the following function beforehand:
+This function checks for an `allowance`. It's basically asking the Gold contract if the sender really approves for his Gold ingots to be used by this contract. An allowance can be granted by calling the following function beforehand:
 
 ```solidity
-function approveMakeDoubloon(uint256 goldAmount) external {
-    require(goldAmount >= 0, "Provide at least 1 GOLD");
-    gold.approve(address(this), goldAmount);
-}
+gold.approve(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c, goldAmount);
 ```
 
-`approve` is an internal method of the ERC20 standard, it does exactly what was described before, it allows another contract to use your tokens on your behalf.
+`approve` is an internal method of the ERC20 token, it does exactly what was described before, it allows another contract to use your tokens on your behalf
 
 ### Bread
 
@@ -149,12 +146,102 @@ function bake() external {
     doubloon.transferFrom(msg.sender, baker, amount); // pay the baker
     _mint(msg.sender, amount); // bake the bread
 }
-
-function startTrade(uint256 doubloons) external {
-    doubloon.approve(address(this), doubloons);
-}
 ```
 
 To buy bread, one needs to *start the trade*, by allowing to use a given amount of doubloons
 
 Then the bread will be baked, the pirate will receive 10 slices of bread for each doubloon paid!
+
+## Hardhat
+
+Hardhat is the ethereum development framework that was used for this project, for a quick overview on what you can do with it (and to understand the commands that we'll be running from now on), open the terminal and run the following command:
+
+```bash
+yarn hardhat help
+```
+
+There are a lot of `tasks` here, the ones that we will be using are the following ones:
+
+1. `node`
+2. `compile`
+3. `create-gold`
+4. `create-doubloon`
+5. `create-stone`
+6. `open-gold-mine`
+7. `look-for-gold`
+8. `make-doubloons`
+
+To see what each of these do, run the command:
+
+```bash
+yarn hardhat help task # replace task with the actual name of the task that you wish to inspect 
+```
+
+## Creating the tokens (deploy ERC-20 tokens)
+
+To deploy a smart contract means to upload it to the blockchain, so other people (and even other contracts) can interact with it, in this case, once the contract is deployed, `Gold`, `Doubloon` and `Stone` will be public assets in the blokchain.
+
+### Steps
+
+1. Spin up an ethereum node, for this you can do it in two ways:
+
+    1.1 Open a new terminal and run (recommended)
+    ```bash
+    yarn hardhat node
+    ``` 
+
+    2.2 Let the node run in the background
+    ```bash
+    yarn hardhat node & sleep 5
+    ```
+
+2. In your main terminal, run the following commands:
+
+    2.1 Compile the contract
+    ```bash
+    yarn hardhat compile
+    ```
+
+    2.2 Deploy the tokens
+    ```bash
+    yarn hardhat create-gold --network development
+    yarn hardhat create-doubloon --network development
+    yarn hardhat create-stone --network development
+    ```
+
+    And that's it, you have created 3 ERC-20 tokens in the blockchain.
+
+## Openning a Gold Mine
+
+To be able to get gold, one must open a Mine first
+
+```bash
+yarn hardhat open-gold-mine --network development
+```
+
+## Getting Gold (or stones?)
+
+In order to buy ale, bread and ships, a pirate must find some gold first
+
+```bash
+yarn hardhat look-for-gold 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9 1 --network development # the first argument is the address of the mine in which you want to search for gold, and the second one the spot in where to look for it. 
+```
+
+Try changing the `spot` until you get some gold, you can keep the stones!
+
+## Getting Doubloons
+
+Well, you can't exactly pay for bread with a gold ingot, so you must melt it first and get some doubloons out of it
+
+```bash
+yarn hardhat make-doubloons 1 --network development # if you found more than 1 gold ingot, feel free to spend more gold
+```
+
+## Buying bread (finally)
+
+That was tedious, but it's how coins are made, you can't just drop in a bar with a gold ingot and ask for bread, what are they going to give you for change? The entire bar?
+
+```bash
+yarn hardhat create-bread --network development
+yarn hardhat buy-bread 1 --network development # pay with 1 doubloon to get 10 slices of fine bread.
+```

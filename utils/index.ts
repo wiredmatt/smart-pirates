@@ -3,8 +3,6 @@ const fname = __dirname + `/../logs/deploy-${process.env.NETWORK}.log.json`;
 
 export default {
   setup: async () => {
-    console.log("setting up");
-
     try {
       await fs.mkdir("logs");
     } catch (e) {

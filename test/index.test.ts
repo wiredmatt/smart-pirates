@@ -1,9 +1,9 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { formatEther, parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import {
+  Bread,
+  Bread__factory,
   Doubloon,
   Doubloon__factory,
   Gold,
@@ -14,6 +14,8 @@ import {
   Stone__factory,
 } from "../typechain";
 
+require("dotenv").config();
+
 const generateRandomSpots = (size: number): boolean[] => {
   let spots: boolean[] = new Array<boolean>(size);
 
@@ -22,6 +24,54 @@ const generateRandomSpots = (size: number): boolean[] => {
   }
 
   return spots;
+};
+
+const getGold = async (
+  spot: number,
+  goldMine: GoldMine,
+  exploration_fee: BigNumber
+): Promise<boolean> => {
+  const found = await goldMine.lookForGold(spot, {
+    value: exploration_fee,
+  });
+
+  const tx = await found.wait();
+
+  const event = tx.events?.find((event) => event.event === "FoundAsset");
+
+  if (event?.args) {
+    const [_, isGold] = event?.args;
+
+    if (isGold) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
+const fundWallet = async (
+  goldMine: GoldMine,
+  gold: Gold,
+  doubloon: Doubloon
+) => {
+  const exploration_fee = await goldMine.EXPLORATION_FEE();
+
+  let _found = false;
+  let spot = 0;
+
+  while (!_found) {
+    _found = await getGold(spot, goldMine, exploration_fee);
+    spot++;
+  }
+
+  const approveTx = await gold.approve(doubloon.address, 1);
+  await approveTx.wait();
+
+  const makeTx = await doubloon.makeDoubloon(1);
+  await makeTx.wait();
 };
 
 describe(`Contracts tests`, () => {
@@ -37,15 +87,10 @@ describe(`Contracts tests`, () => {
   let GoldMine: GoldMine__factory;
   let goldMine: GoldMine;
 
-  let add1: SignerWithAddress;
-  let add2: SignerWithAddress;
-  let add3: SignerWithAddress;
-  let add4: SignerWithAddress;
-  let addrs: SignerWithAddress;
+  let Bread: Bread__factory;
+  let bread: Bread;
 
   beforeEach(async () => {
-    [add1, add2, add3, add4, addrs] = await ethers.getSigners();
-
     Gold = await ethers.getContractFactory("Gold");
     gold = await Gold.deploy();
 
@@ -61,13 +106,17 @@ describe(`Contracts tests`, () => {
       stone.address,
       generateRandomSpots(100)
     );
+
+    Bread = await ethers.getContractFactory("Bread");
+    bread = await Bread.deploy(doubloon.address, process.env.BAKER!);
+
+    await gold.setDoubloonMaker(doubloon.address);
+    await gold.allowGoldMine(goldMine.address);
+    await stone.allowGoldMine(goldMine.address);
   });
 
   describe(`Resources mining`, () => {
     it("Should allow a Gold Mine", async () => {
-      await gold.allowGoldMine(goldMine.address);
-      await stone.allowGoldMine(goldMine.address);
-
       const allowedGold = await gold.allowedMines(goldMine.address);
       const allowedStone = await gold.allowedMines(goldMine.address);
 
@@ -76,9 +125,6 @@ describe(`Contracts tests`, () => {
     });
 
     it("Should mine gold or stone from a Gold Mine", async () => {
-      await gold.allowGoldMine(goldMine.address);
-      await stone.allowGoldMine(goldMine.address);
-
       const exploration_fee = await goldMine.EXPLORATION_FEE();
 
       const found = await goldMine.lookForGold(1, {
@@ -105,56 +151,27 @@ describe(`Contracts tests`, () => {
     });
 
     it("Should mine gold and exchange it for doubloons", async () => {
-      await gold.allowGoldMine(goldMine.address);
-      await stone.allowGoldMine(goldMine.address);
-
-      const exploration_fee = await goldMine.EXPLORATION_FEE();
-
-      const getGold = async (spot: number): Promise<boolean> => {
-        const found = await goldMine.lookForGold(spot, {
-          value: exploration_fee,
-        });
-
-        const tx = await found.wait();
-
-        const event = tx.events?.find((event) => event.event === "FoundAsset");
-
-        if (event?.args) {
-          const [_, isGold] = event?.args;
-
-          if (isGold) {
-            console.log("You found Gold!");
-            console.log("+1 Gold ingot");
-            return true;
-          } else {
-            console.log("You found... Stone!?");
-            console.log("+100 stones");
-            return false;
-          }
-        } else {
-          return false;
-        }
-      };
-
-      let _found = false;
-      let spot = 0;
-
-      while (!_found) {
-        _found = await getGold(spot);
-        spot++;
-      }
-
-      await gold.setDoubloonMaker(doubloon.address);
-
-      const approveTx = await gold.approve(doubloon.address, 1);
-      await approveTx.wait();
-
-      const makeTx = await doubloon.makeDoubloon(1);
-      await makeTx.wait();
+      await fundWallet(goldMine, gold, doubloon);
 
       const doubloons = await doubloon.balanceOf(process.env.PUBLIC_KEY!);
 
       console.log("You now own $DBL", doubloons.toString());
+
+      expect(doubloons.toString()).to.equal("100");
+    });
+
+    it("Should buy bread with doubloons", async () => {
+      await fundWallet(goldMine, gold, doubloon);
+
+      const approveTx = await doubloon.approve(bread.address, 1);
+      await approveTx.wait();
+
+      await bread.bake();
+
+      const breadSlices = await bread.balanceOf(process.env.PUBLIC_KEY!);
+
+      console.log("You now own:", breadSlices.toString(), "slices of Bread!");
+      expect(breadSlices.toString()).to.equal("10");
     });
   });
 });
