@@ -23,14 +23,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
-type PirateJournalJSON = {
-  pirate: {
-    name: string;
-    surname: string;
-  };
-  journalAddress: string;
-};
-
 task(
   "set-keys",
   "Sets the private and public key of the pirate that's going to own the journal. Remember that you must keep your private key a secret!"
