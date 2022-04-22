@@ -40,7 +40,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 There's something new here, an import!
 
-As you already now, when we develop software we have tons of libraries and frameworks at our disposal, there's no need to reinvent the wheel, and this also applies for Smart Contracts
+As you already know, when we develop software we have tons of libraries and frameworks at our disposal, there's no need to reinvent the wheel, and this also applies for Smart Contracts
 
 What you need to know is that `ERC20` is the standard for making a token, there are 5 things that are important to understand at first glance:
 
