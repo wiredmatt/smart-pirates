@@ -16,194 +16,117 @@ yarn install
 
 ## Contents
 
-This project contains a single smart Contract, [`PirateJournal`](./contracts/PirateJournal.sol)
+This project contains multiple Smart Contracts, [`Gold`](./contracts/Gold.sol), [`Doubloon`](./contracts/Doubloon.sol), [`GoldMine`](./contracts/GoldMine.sol) and [`Stone`](./contracts/Stone.sol)
 
-## Inspecting the smart contract
+## Inspecting the smart contracts
 
-### License?
+### Gold
 
-As you can see in the first line of the code there is a license specified, this is a code standard for smart contracts, you should choose yours wisely
 
-```solidity
-// SPDX-License-Identifier: MIT
-```
-If you're thinking *why?*: Because every smart contract is public in the blockchain, but that doesn't necessarily mean that whoever sees the code can copy and reuse it, or at least not under certain conditions, for example the MIT license tells its readers:
-
-```
-Copyright (c) <year> <copyright holders>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-Meaning that whoever uses and modifies the code should leave the copyright notice and the original license. You can check all the available license and choose yours here at [choosealicense](https://choosealicense.com/licenses/)
-
-In this case, this means that any pirate can freely copy the code and add more functionality to the contract!
-
-### Structs
-
-There are two `structs` defined in this contract, and as you can guess a `struct` is a custom type, many programming languages have this feature, for example [Typescript](https://www.typescriptlang.org/) and [Rust](https://www.rust-lang.org/), a `struct` is used only for **holding data**, it can't contain functions
+#### Imports
 
 ```solidity
-struct Pirate {
-    string name;
-    string surname;
-    address publicKey;
-}
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+```
 
-struct JournalEntry {
-    string title;
-    string date;
-    string text;
+There's something new here, an import!
+
+As you already now, when we develop software we have tons of libraries and frameworks at our disposal, there's no need to reinvent the wheel, and this also applies for Smart Contracts
+
+What you need to know is that `ERC20` is the standard for making a token, there are 5 things that are important to understand at first glance:
+
+1. A token has a name, for example `Gold`
+2. A token has a symbol, for example `GLD`
+3. A token can be `*minted*` (in the case of gold, it would mean that someone found gold and mined it, in the case of USD dollars, it means that the money printer went brrrrrr), you basically create units of a token by minting them
+4. A token can be `burned`, basically, you get a certain amount of tokens out of circulation, this is often done to fight inflation
+5. A token can be `traded` for another token, in the same way that you can exchange USD for AUD you can `*swap*` ETH for WBTC, at a given market or fixed rate (for example: you can swap 1 ETH for 2973 USDC)
+
+Note: in the case of point 4, we're using burn a little bit different, as you will see, by burning Gold you receive [doubloons](https://en.wikipedia.org/wiki/Doubloon) (Makes sense right? You need to melt gold in order to get a Doubloon)
+
+### Allowed mines?
+
+```solidity
+mapping(address => bool) public allowedMines;
+```
+
+Well, Gold can only be found in Gold Mines right? Gold Mines will also be smart contracts! Take a glance at the [Gold Mine section](#gold-mine) if you'd like
+
+Example:
+
+```json
+{
+    "0xb5310ac8625aee8bf2c7B3AB8D10C2ddFb509443": true, // this is a gold mine! So gold can be found here
+    "0x8DF2A31064337f276F32d963Ce7CcCf5E3aE6896": false // this one is not.
 }
 ```
 
-A `Pirate` has a `name` and a `surname`; but this is a smart pirate, so he also has a [web3 wallet](https://web3.hashnode.com/what-is-a-web3-wallet) which he uses to prove his identity and sign his journal entries!
+This way, the `mine` function can only be invoked from a `Gold Mine`
 
-A `JournalEntry` has a `title`, a `date` and its `text`
+The rest that you'll see in this contract has to do with making a doubloon, gold can only be burned when using it to make a doubloon, that's it!
 
-### Contract
+### Stone
 
-You can think of a contract as a class, they are actually the exact same thing. A class has attributes and functions, and so does a Contract
+Because when you mine, you might not always find gold :(.
 
-For example, the `PirateJournal` contract has the followings:
+### Gold Mine
 
-- Attributes: 
+```
+function lookForGold(uint256 spot) public payable {
+    require(msg.value == EXPLORATION_FEE, "You should pay 0.1 ether");
+    require(spot < spots.length, "Spot is out of bounds");
 
-    * `author`: The pirate that owns this journal
-    * `entries`: A Hashmap that maps a `page number` with a `JournalEntry`, for example:
-    
-    ```json
-    {
-        1: {
-            "title": "My Journey learning Solidity Begins",
-            "date": "2022/04/20",
-            "text": "Today I learned how to create a Smart Contract!"
-        }
+    if (spots[spot] == true) {
+        gold.mine(msg.sender, 10);
+        spots[spot] = false; // set spot as already mined.
+    } else {
+        stone.mine(msg.sender, 100);
     }
-    ``` 
-- Functions:
-
-    * `constructor`: a function that gets executed when the contract gets deployed, it receives the name and surname of the owner of the journal as parameters
-
-    ```solidity
-    constructor(string memory name, string memory surname) {
-        author = Pirate(name, surname, msg.sender);
-    }
-    ```
-
-    There is something interesting here, `msg.sender`, what is it? Well, in short, it is the address (public key) of the pirate deploying this contract! `msg` is a reserved keyword that stores many useful things when a function is called
-
-    * `recordEntry`: This function adds content to a page in the journal (as you can guess, it can also modify the existing data if there was any in the specified page)
-
-    ```solidity
-    function recordEntry(
-        uint256 page,
-        string memory title,
-        string memory date,
-        string memory text
-    ) external onlyAuthor {
-        entries[page] = JournalEntry(title, date, text);
-    }
-    ```
-
-    What's `external`? It is a [function modifier](https://www.tutorialspoint.com/solidity/solidity_function_modifiers.htm), that specifies that this function can only be called from outside of this contract, meaning that I couldn't call this function from another function
-
-    What's `onlyAuthor`? This modifier checks that the one calling has the same public key as the one who created (deployed) this contract
-
-## Hardhat
-
-Hardhat is the ethereum development framework that was used for this project, for a quick overview on what you can do with it (and to understand the commands that we'll be running from now on), open the terminal and run the following command:
-
-```bash
-yarn hardhat help
+}
 ```
 
-There are a lot of `tasks` here, the ones that we will be using are the following ones:
+To be able to find some gold, you have to pay a fee (to use the equipment and the paths built beforehand, duh). This is why this function has the modifier `payable`, this means that when you call this function you should send a specified amount of ETH, if you send less you won't be able to enter the mine.
 
-1. `node`
-2. `compile`
-3. `create-journal`
-4. `record-entry`
-5. `read`
-6. `set-keys`
+You should also choose a `spot` in which to look for some gold. Think of it this way:
 
-To see what each of these do, run the command:
+```
+ 0  1  2  3  4  5  6  7  8  9
+-------------------------------
+|  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |
+-------------------------------
 
-```bash
-yarn hardhat help task # replace task with the actual name of the task that you wish to inspect 
 ```
 
-## Creating a journal (deploying the smart contract)
+A mine can have 9 paths in which to look for gold, you can only choose one at a time.
 
-To deploy a smart contract means to upload it to the blockchain, so other people (and even other contracts) can interact with it, in this case, once the contract is deployed, the pirate will be able to record journal entries that'll be stored in the blockchain
 
-### Steps
+### Doubloon
 
-1. Spin up an ethereum node, for this you can do it in two ways:
+So in order to make 100 Doubloons, you have to provide 1 Gold ingot.
 
-    1.1 Open a new terminal and run (recommended)
-    ```bash
-    yarn hardhat node
-    ``` 
+```solidity
+function makeDoubloon(uint256 goldAmount) external {
+    require(goldAmount >= 0, "Provide at least 1 GOLD");
+    require(
+        gold.allowance(msg.sender, address(this)) >= goldAmount,
+        "Approve to spend your gold"
+    );
 
-    2.2 Let the node run in the background
-    ```bash
-    yarn hardhat node & sleep 5
-    ```
+    gold.transferFrom(msg.sender, address(this), goldAmount);
 
-2. In your main terminal, run the following commands:
+    gold.meltGold(goldAmount);
 
-    2.1 Compile the contract
-    ```bash
-    yarn hardhat compile
-    ```
-
-    2.2 Deploy it
-    ```bash
-    yarn hardhat create-journal Edward Newgate --network development # Feel free to replace Edward Newgate with your favourite pirate
-    ```
-
-    And that's it, you have created a new journal for Edward Newgate.
-
-## Adding an entry to the journal
-
-This is no pirate journal if it's empty, let's fill it with some adventures!
-
-```bash
-yarn hardhat record-entry 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 "My journey learning Solidity begins" "2022/04/21" "Today I learned how to create a decentralized journal to record my adventures!" --network development # replace the first argument with the address to which the journal was deployed to, you can check it in the file logs/deploy-development.log.json
+    _mint(msg.sender, goldAmount * 100);
+}
 ```
 
-## Reading the entries of the journal
+This function checks for an `allowance`. It's basically asking the Gold contract if the user really approves to burn a given amount of gold in exchange of doubloons. An allowance can be granted by calling the following function beforehand:
 
-To see what has been written in a page, run the following command:
-
-```bash
-yarn hardhat read 0x5FbDB2315678afecb367f032d93F642f64180aa3 1 --network development # remember to replace the address and the page number
+```solidity
+function approveMakeDoubloon(uint256 goldAmount) external {
+    require(goldAmount >= 0, "Provide at least 1 GOLD");
+    gold.approve(address(this), goldAmount);
+}
 ```
 
-## Adding another pirate, and creating a new journal for him
-
-To add a new pirate get a new pair of keys from those that `yarn hardhat node` gives you, and run the following command:
-
-```bash 
-yarn hardhat set-keys 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 # privatekey publickey
-```
-
-Now you can repeat the process 
-
-1. Create journal
-2. Add entries
-3. Read the entries
+`approve` is an internal method of the ERC20 standard, it does exactly what was described before, it allows another contract to use your tokens on your behalf.

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./Gold.sol";
 
 contract Doubloon is ERC20 {
-    uint256 public constant EXCHANGE_RATE = 100; // 1 GOLD Lingot = 100 doubloon
+    uint256 public constant EXCHANGE_RATE = 100; // 1 GOLD ingot = 100 doubloon
     Gold public gold;
 
     constructor(uint256 _intialSupply, address _gold) ERC20("Doubloon", "DBL") {
