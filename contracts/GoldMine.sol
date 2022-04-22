@@ -9,7 +9,7 @@ contract GoldMine {
     Gold public gold;
     Stone public stone;
 
-    //               spot   , gold or stoen
+    //               spot   , gold or stone
     event FoundAsset(uint256, bool);
 
     constructor(
