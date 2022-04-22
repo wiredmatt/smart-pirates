@@ -85,7 +85,7 @@ function lookForGold(uint256 spot) public payable {
     require(spot < spots.length, "Spot is out of bounds");
 
     if (spots[spot] == true) {
-        gold.mine(msg.sender, 10);
+        gold.mine(msg.sender, 1);
         spots[spot] = false; // set spot as already mined.
     } else {
         stone.mine(msg.sender, 100);

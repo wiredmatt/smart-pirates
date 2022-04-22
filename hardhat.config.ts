@@ -25,7 +25,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 task(
   "set-keys",
-  "Sets the private and public key of the pirate that's going to own the journal. Remember that you must keep your private key a secret!"
+  "Sets the private and public key of the pirate that's going to manage the contracts. Remember that you must keep your private key a secret!"
 )
   .addPositionalParam(
     "privatekey",
@@ -50,126 +50,200 @@ task(
     await writeFile(".env", stringify(env));
   });
 
-task("create-journal", "Creates a new Pirate Journal")
-  .addPositionalParam(
-    "name",
-    "The name of the pirate",
-    undefined,
-    types.string,
-    false
-  )
-  .addPositionalParam(
-    "surname",
-    "The surname of the pirate",
-    undefined,
-    types.string,
-    false
-  )
-  .setAction(async ({ name, surname }, hre) => {
+task("create-gold", "Creates Gold").setAction(async (_, hre) => {
+  await utils.setup();
+  const logFile = utils.read();
+
+  const Gold = await hre.ethers.getContractFactory("Gold");
+  const gold = await Gold.deploy();
+
+  await gold.deployed();
+
+  console.log("Gold deployed to:", gold.address);
+
+  logFile.Gold = {
+    address: gold.address,
+  };
+
+  await utils.write(logFile);
+});
+
+task("create-doubloon", "Creates Doubloon").setAction(async (_, hre) => {
+  await utils.setup();
+  const logFile = utils.read();
+
+  if (!logFile.Gold) {
+    console.log("Deploy Gold first!");
+    return;
+  }
+
+  const Doubloon = await hre.ethers.getContractFactory("Doubloon");
+  const doubloon = await Doubloon.deploy(logFile.Gold.address);
+
+  await doubloon.deployed();
+
+  console.log("Doubloon deployed to:", doubloon.address);
+
+  logFile.Doubloon = {
+    address: doubloon.address,
+  };
+
+  await utils.write(logFile);
+
+  const gold = await hre.ethers.getContractAt("Gold", logFile.Gold.address);
+
+  await gold.setDoubloonMaker(doubloon.address);
+});
+
+task("create-stone", "Creates Stone").setAction(async (_, hre) => {
+  await utils.setup();
+  const logFile = utils.read();
+
+  const Stone = await hre.ethers.getContractFactory("Stone");
+  const stone = await Stone.deploy();
+
+  await stone.deployed();
+
+  console.log("Stone deployed to:", stone.address);
+
+  logFile.Stone = {
+    address: stone.address,
+  };
+
+  await utils.write(logFile);
+});
+
+const generateRandomSpots = (size: number): boolean[] => {
+  let spots: boolean[] = new Array<boolean>(size);
+
+  for (let i = 0; i < size; i++) {
+    spots[i] = Math.random() < 0.5;
+  }
+
+  return spots;
+};
+
+task("open-gold-mine", "Opens a gold mine to find gold!").setAction(
+  async (_, hre) => {
     await utils.setup();
     const logFile = utils.read();
 
-    const Journal = await hre.ethers.getContractFactory("PirateJournal");
-    const journal = await Journal.deploy(name, surname);
-
-    await journal.deployed();
-
-    console.log("New pirate Journal created at:", journal.address);
-
-    const PirateJournal = {
-      pirate: {
-        name: name,
-        surname: surname,
-        publickey: process.env.PUBLIC_KEY,
-      },
-      journalAddress: journal.address,
-    };
-
-    if (logFile.PirateJournals) {
-      logFile.PirateJournals.push(PirateJournal);
-      logFile.PirateJournals.reverse();
-    } else {
-      logFile.PirateJournals = [PirateJournal];
+    if (!logFile.Stone || !logFile.Gold) {
+      console.log("Deploy Gold and Stone first!");
     }
 
+    const spots = generateRandomSpots(100);
+
+    const GoldMine = await hre.ethers.getContractFactory("GoldMine");
+    const goldMine = await GoldMine.deploy(
+      logFile.Gold.address,
+      logFile.Stone.address,
+      spots
+    );
+
+    await goldMine.deployed();
+
+    console.log("New GoldMine deployed to:", goldMine.address);
+
+    if (logFile.GoldMines) {
+      logFile.GoldMines = [...logFile.GoldMines, goldMine.address];
+    } else {
+      logFile.GoldMines = [goldMine.address];
+    }
+
+    const gold = await hre.ethers.getContractAt("Gold", logFile.Gold.address);
+    const goldAllowTx = await gold.allowGoldMine(goldMine.address);
+    goldAllowTx.wait();
+
+    const stone = await hre.ethers.getContractAt(
+      "Stone",
+      logFile.Stone.address
+    );
+    const stoneAllowTx = await stone.allowGoldMine(goldMine.address);
+    stoneAllowTx.wait();
+
     await utils.write(logFile);
-  });
+  }
+);
 
-task("record-entry", "Adds or modifies an entry in the journal")
+task("look-for-gold", "Looks for gold in given Spot, in a given Gold Mine")
   .addPositionalParam(
-    "journaladdress",
-    "The address of the journal",
+    "mine",
+    "The address of a Gold Mine",
     undefined,
     types.string,
     false
   )
   .addPositionalParam(
-    "page",
-    "The page in which this entry will be recorded",
+    "spot",
+    "The spot in where to look for some gold (or stones)",
     undefined,
     types.int,
     false
   )
-  .addPositionalParam(
-    "title",
-    "The title for this entry",
-    undefined,
-    types.string,
-    false
-  )
-  .addPositionalParam(
-    "date",
-    "The date for this entry",
-    undefined,
-    types.string,
-    false
-  )
-  .addPositionalParam(
-    "text",
-    "The text for this entry",
-    undefined,
-    types.string,
-    false
-  )
-  .setAction(async ({ journaladdress, page, title, date, text }, hre) => {
-    const Journal = await hre.ethers.getContractFactory("PirateJournal");
+  .setAction(async ({ mine, spot }, hre) => {
+    await utils.setup();
+    const logFile = utils.read();
 
-    const journal = Journal.attach(journaladdress);
+    if (!logFile.GoldMines) {
+      console.log("There are not Gold Mines yet");
+    }
 
-    const entry = await journal.recordEntry(page, title, date, text, {
-      from: process.env.PUBLIC_KEY,
-    });
+    const goldMine = await hre.ethers.getContractAt("GoldMine", mine);
 
-    const receipt = await entry.wait();
+    const exploration_fee = await goldMine.EXPLORATION_FEE();
 
-    console.log(receipt);
+    const found = await goldMine.lookForGold(spot, { value: exploration_fee });
+
+    const tx = await found.wait();
+
+    const event = tx.events?.find((event) => event.event === "FoundAsset");
+
+    if (event?.args) {
+      const [_, isGold] = event?.args;
+
+      if (isGold) {
+        console.log("You found Gold!");
+        console.log("+1 Gold ingot");
+      } else {
+        console.log("You found... Stone!?");
+        console.log("+100 stones");
+      }
+    }
   });
 
-task("read", "Reads a page of the journal")
+task("make-doubloons", "Give your gold, receive doubloons")
   .addPositionalParam(
-    "journaladdress",
-    "The address of the journal",
-    undefined,
-    types.string,
-    false
-  )
-  .addPositionalParam(
-    "page",
-    "The page number to read",
+    "amount",
+    "The amount of gold to melt",
     undefined,
     types.int,
     false
   )
-  .setAction(async ({ journaladdress, page }, hre) => {
-    const Journal = await hre.ethers.getContractFactory("PirateJournal");
+  .setAction(async ({ amount }, hre) => {
+    await utils.setup();
+    const logFile = utils.read();
 
-    const journal = Journal.attach(journaladdress);
-    const entry = await journal.readEntry(page);
+    if (!logFile.Gold || !logFile.Doubloon) {
+      console.log("Deploy gold and Doubloon first");
+      return;
+    }
 
-    console.log(`${entry.title} - ${entry.date}\n`);
-    console.log("--------------------");
-    console.log(entry.text);
-    console.log("--------------------");
+    const doubloon = await hre.ethers.getContractAt(
+      "Doubloon",
+      logFile.Doubloon.address
+    );
+
+    const gold = await hre.ethers.getContractAt("Gold", logFile.Gold.address);
+
+    const approveTx = await gold.approve(doubloon.address, amount);
+    await approveTx.wait();
+
+    await doubloon.makeDoubloon(amount);
+
+    const doubloons = await doubloon.balanceOf(process.env.PUBLIC_KEY!);
+
+    console.log("You now own $DBL", doubloons.toString());
   });
 
 // You need to export an object to set up your config

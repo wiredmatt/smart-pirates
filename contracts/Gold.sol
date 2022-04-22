@@ -19,12 +19,12 @@ contract Gold is ERC20, ERC20Burnable {
         _;
     }
 
-    function setDoubloonMaker (address _dobuloon) external {
+    function setDoubloonMaker(address _dobuloon) external {
         require(doubloon == address(0), "Doubloon already set");
         doubloon = _dobuloon;
     }
 
-    function allowGoldMine (address _goldMine) external {
+    function allowGoldMine(address _goldMine) external {
         allowedMines[_goldMine] = true;
     }
 

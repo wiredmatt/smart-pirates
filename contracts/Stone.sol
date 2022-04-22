@@ -13,6 +13,10 @@ contract Stone is ERC20 {
         _;
     }
 
+    function allowGoldMine(address _goldMine) external {
+        allowedMines[_goldMine] = true;
+    }
+
     function mine(address minerAddress, uint256 amount) external isGoldMine {
         _mint(minerAddress, amount);
     }
