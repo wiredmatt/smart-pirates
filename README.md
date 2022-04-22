@@ -26,7 +26,7 @@ yarn install
 
 ## Contents
 
-This project contains multiple Smart Contracts, [`Gold`](./contracts/Gold.sol), [`Doubloon`](./contracts/Doubloon.sol), [`GoldMine`](./contracts/GoldMine.sol) and [`Stone`](./contracts/Stone.sol)
+This project contains multiple Smart Contracts, [`Gold`](./contracts/Gold.sol), [`Doubloon`](./contracts/Doubloon.sol), [`GoldMine`](./contracts/GoldMine.sol), [`Stone`](./contracts/Stone.sol) and [`Bread`](./contracts/Bread.sol)
 
 ## Inspecting the smart contracts
 
@@ -142,9 +142,12 @@ Now with some doubloons you can buy bread!
 
 ```solidity
 function bake() external {
-    uint256 amount = doubloon.allowance(msg.sender, address(this)) * 10;
+    uint256 amount = doubloon.allowance(msg.sender, address(this));
+    require(amount >= 0, "Start the trade first");
+    
     doubloon.transferFrom(msg.sender, baker, amount); // pay the baker
-    _mint(msg.sender, amount); // bake the bread
+        
+    _mint(msg.sender, amount * 10); // receive 10 slices of bread for each doubloon
 }
 ```
 
@@ -170,6 +173,7 @@ There are a lot of `tasks` here, the ones that we will be using are the followin
 6. `open-gold-mine`
 7. `look-for-gold`
 8. `make-doubloons`
+9. `buy-bread`
 
 To see what each of these do, run the command:
 
