@@ -16,7 +16,7 @@ contract Bread is ERC20 {
 
     function bake() external {
         uint256 amount = doubloon.allowance(msg.sender, address(this));
-        require(amount >= 0, "Start the trade first");
+        require(amount > 0, "Start the trade first");
         
         doubloon.transferFrom(msg.sender, baker, amount); // pay the baker
            

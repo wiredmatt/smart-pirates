@@ -114,7 +114,7 @@ So in order to make 100 Doubloons, you have to provide 1 Gold ingot.
 
 ```solidity
 function makeDoubloon(uint256 goldAmount) external {
-    require(goldAmount >= 0, "Provide at least 1 GOLD");
+    require(goldAmount > 0, "Provide at least 1 GOLD");
     require(
         gold.allowance(msg.sender, address(this)) >= goldAmount,
         "Approve to spend your gold"
@@ -143,7 +143,7 @@ Now with some doubloons you can buy bread!
 ```solidity
 function bake() external {
     uint256 amount = doubloon.allowance(msg.sender, address(this));
-    require(amount >= 0, "Start the trade first");
+    require(amount > 0, "Start the trade first");
     
     doubloon.transferFrom(msg.sender, baker, amount); // pay the baker
         

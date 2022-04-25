@@ -14,7 +14,7 @@ contract Doubloon is ERC20 {
     }
 
     function makeDoubloon(uint256 goldAmount) external {
-        require(goldAmount >= 0, "Provide at least 1 GOLD");
+        require(goldAmount > 0, "Provide at least 1 GOLD");
         require(
             gold.allowance(msg.sender, address(this)) >= goldAmount,
             "Approve to spend your gold"
