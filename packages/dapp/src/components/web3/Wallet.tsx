@@ -8,7 +8,7 @@ import {
   useEnsName,
 } from "wagmi";
 
-import { Avatar, Box, IconLockClosed, Skeleton, Stack } from "degen";
+import { Avatar, IconLockClosed } from "degen";
 import Button from "../Button";
 
 import Metamask from "../../icons/metamask";
@@ -43,74 +43,65 @@ const Account: FC<IProps> = () => {
   return (
     <div>
       {accountData && isMounted ? (
-        <Stack
-          align="center"
-          direction={{ xs: "vertical", sm: "horizontal" }}
-          justify="space-between"
-        >
-          <div className="transition hover:scale-110 cursor-pointer">
-            <Stack
-              align="center"
-              direction={{ xs: "vertical", sm: "horizontal" }}
-            >
-              <Avatar
-                src={
-                  (ensAvatarData as any) ||
-                  getRandomPirateAvatar(accountData.address!)
-                }
-                label="ENS Avatar"
-              />
-              <Stack space="0">
-                <Box fontSize="large" textAlign={{ xs: "center", sm: "left" }}>
-                  <p className="font-bold">
+        <div className="align-middle flex flex-row justify-around text-center space-x-5">
+          <a href={`/pirate/${accountData.address}`}>
+            <div className="transition hover:scale-110">
+              <div className="align-middle flex flex-row justify-between space-x-4">
+                <Avatar
+                  src={
+                    (ensAvatarData as any) ||
+                    getRandomPirateAvatar(accountData.address!)
+                  }
+                  label="ENS Avatar"
+                />
+                <div>
+                  <p className="font-bold text-xl">
                     {ensNameData
                       ? `${ensNameData} (${formatAddress(
                           accountData.address!
                         )})`
                       : formatAddress(accountData.address!)}
                   </p>
-                </Box>
-                <Box
-                  textAlign={{ xs: "center", sm: "left" }}
-                  display="flex"
-                  gap="1"
-                >
-                  <p>Connected to </p>
-                  <Skeleton loading={!(isMounted && accountData?.connector)}>
-                    <p>
-                      {isMounted && accountData?.connector
-                        ? accountData.connector.name
-                        : "Wallet Name"}
-                    </p>
-                  </Skeleton>
-                </Box>
-              </Stack>
-            </Stack>
-          </div>
-
-          <button onClick={() => disconnect()}>Disconnect</button>
-        </Stack>
-      ) : (
-        <Stack align="flex-end">
-          {connectors.map((c) => (
-            <div className="font-lobster">
-              <Button
-                key={c.name}
-                onClick={async () => {
-                  connect(c); // get permission to use metamask
-                  await changeNetwork(c.chains[0]);
-                }}
-                leftIcon={
-                  connectorProps.find(
-                    (_c) => _c.name.toLowerCase() === c.name.toLowerCase()
-                  )?.icon || <IconLockClosed key={c.name} />
-                }
-              >
-                Connect {c.name} Wallet
-              </Button>
+                  <p>
+                    Connected to{" "}
+                    {isMounted && accountData?.connector
+                      ? accountData.connector.name
+                      : "Unknown wallet"}
+                  </p>
+                </div>
+              </div>
             </div>
+          </a>
+
+          <Button
+            bgColor={"bg-black"}
+            textColor={"text-white"}
+            onClick={() => disconnect()}
+          >
+            Disconnect
+          </Button>
+        </div>
+      ) : (
+        <div>
+          {connectors.map((c) => (
+            <Button
+              key={c.name}
+              onClick={async () => {
+                connect(c); // get permission to use metamask
+                await changeNetwork(c.chains[0]);
+              }}
+              leftIcon={
+                connectorProps.find(
+                  (_c) => _c.name.toLowerCase() === c.name.toLowerCase()
+                )?.icon || <IconLockClosed key={c.name} />
+              }
+              bgColor={"bg-black"}
+              textColor={"text-white"}
+            >
+              Connect {c.name} Wallet
+            </Button>
           ))}
-        </Stack>
+        </div>
       )}
     </div>
   );

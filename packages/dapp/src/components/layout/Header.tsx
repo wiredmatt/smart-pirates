@@ -7,7 +7,7 @@ interface IProps {}
 const Header: FC<IProps> = () => {
   return (
     <>
-      <div className="flex flex-col justify-center md:flex-row md:justify-between md:px-12 w-screen">
+      <div className="flex flex-col justify-center md:flex-row md:justify-between md:px-12 w-screen font-lobster">
         <div className="pt-5 self-center hover:scale-105 transition-transform">
           <a href="/">
             <Avatar
@@ -19,12 +19,12 @@ const Header: FC<IProps> = () => {
         </div>
 
         <div className="md:pt-14 md:pl-24">
-          <h1 className="text-center md:text-left text-4xl font-lobster">
+          <h1 className="text-center md:text-left text-4xl">
             The Decentralized Tavern
           </h1>
         </div>
 
-        <div className="pt-12 hidden md:inline mt-1 w-96">
+        <div className="pt-12 hidden md:inline-flex mt-1 w-96 justify-end">
           <Wallet />
         </div>
       </div>
