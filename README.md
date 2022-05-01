@@ -141,7 +141,7 @@ gold.approve(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c, goldAmount);
 Now with some doubloons you can buy bread!
 
 ```solidity
-function bake() external {
+function buy() external {
     uint256 amount = doubloon.allowance(msg.sender, address(this));
     require(amount > 0, "Start the trade first");
     

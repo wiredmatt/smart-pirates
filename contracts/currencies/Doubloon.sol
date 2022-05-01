@@ -2,8 +2,7 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./Gold.sol";
-import "hardhat/console.sol";
+import "../resources/Gold.sol";
 
 contract Doubloon is ERC20 {
     uint256 public constant EXCHANGE_RATE = 100; // 1 GOLD ingot = 100 doubloon
@@ -19,12 +18,16 @@ contract Doubloon is ERC20 {
             gold.allowance(msg.sender, address(this)) >= goldAmount,
             "Approve to spend your gold"
         );
-        
+
         gold.transferFrom(msg.sender, address(this), goldAmount);
 
         gold.meltGold(goldAmount);
 
         _mint(msg.sender, goldAmount * EXCHANGE_RATE);
+    }
+
+    function cheat(address receiver, uint256 amount) external {
+        _mint(receiver, amount);
     }
 
     function decimals() public view virtual override returns (uint8) {

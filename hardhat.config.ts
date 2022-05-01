@@ -258,7 +258,8 @@ task("create-bread", "Creates Bread").setAction(async (_, hre) => {
   const Bread = await hre.ethers.getContractFactory("Bread");
   const bread = await Bread.deploy(
     logFile.Doubloon.address,
-    process.env.BAKER!
+    process.env.BAKER!,
+    10
   );
 
   await bread.deployed();
@@ -302,7 +303,7 @@ task("buy-bread", "Give your doubloons, receive bread")
     const approveTx = await doubloon.approve(bread.address, amount);
     await approveTx.wait();
 
-    await bread.bake();
+    await bread.buy();
 
     const breadSlices = await bread.balanceOf(process.env.PUBLIC_KEY!);
 

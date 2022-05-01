@@ -108,7 +108,7 @@ describe(`Contracts tests`, () => {
     );
 
     Bread = await ethers.getContractFactory("Bread");
-    bread = await Bread.deploy(doubloon.address, process.env.BAKER!);
+    bread = await Bread.deploy(doubloon.address, process.env.BAKER!, 10);
 
     await gold.setDoubloonMaker(doubloon.address);
     await gold.allowGoldMine(goldMine.address);
@@ -166,7 +166,7 @@ describe(`Contracts tests`, () => {
       const approveTx = await doubloon.approve(bread.address, 1);
       await approveTx.wait();
 
-      await bread.bake();
+      await bread.buy();
 
       const breadSlices = await bread.balanceOf(process.env.PUBLIC_KEY!);
 
