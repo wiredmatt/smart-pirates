@@ -12,7 +12,10 @@ import "hardhat-abi-exporter";
 import utils from "./utils";
 
 import { parse, stringify } from "envfile";
-import { writeFile } from "fs-extra";
+import { writeFile, mkdirp, writeJSON } from "fs-extra";
+
+const abisDir = `${__dirname}/../dapp/src/utils/web3/contracts/abis`;
+const tokensDir = `${__dirname}/../dapp/src/utils/web3/contracts/data`;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -67,6 +70,12 @@ task("create-gold", "Creates Gold").setAction(async (_, hre) => {
   };
 
   await utils.write(logFile);
+
+  await mkdirp(tokensDir);
+
+  await writeJSON(`${tokensDir}/Gold.json`, logFile.Gold, {
+    spaces: 2,
+  });
 });
 
 task("create-doubloon", "Creates Doubloon").setAction(async (_, hre) => {
@@ -94,6 +103,12 @@ task("create-doubloon", "Creates Doubloon").setAction(async (_, hre) => {
   const gold = await hre.ethers.getContractAt("Gold", logFile.Gold.address);
 
   await gold.setDoubloonMaker(doubloon.address);
+
+  await mkdirp(tokensDir);
+
+  await writeJSON(`${tokensDir}/Doubloon.json`, logFile.Doubloon, {
+    spaces: 2,
+  });
 });
 
 task("create-stone", "Creates Stone").setAction(async (_, hre) => {
@@ -112,6 +127,12 @@ task("create-stone", "Creates Stone").setAction(async (_, hre) => {
   };
 
   await utils.write(logFile);
+
+  await mkdirp(tokensDir);
+
+  await writeJSON(`${tokensDir}/Stone.json`, logFile.Stone, {
+    spaces: 2,
+  });
 });
 
 const generateRandomSpots = (size: number): boolean[] => {
@@ -164,6 +185,12 @@ task("open-gold-mine", "Opens a gold mine to find gold!").setAction(
     stoneAllowTx.wait();
 
     await utils.write(logFile);
+
+    await mkdirp(tokensDir);
+
+    await writeJSON(`${tokensDir}/GoldMines.json`, logFile.GoldMines, {
+      spaces: 2,
+    });
   }
 );
 
@@ -198,7 +225,7 @@ task("look-for-gold", "Looks for gold in given Spot, in a given Gold Mine")
 
     const tx = await found.wait();
 
-    const event = tx.events?.find((event) => event.event === "FoundAsset");
+    const event = tx.events?.find((event: any) => event.event === "FoundAsset");
 
     if (event?.args) {
       const [_, isGold] = event?.args;
@@ -271,6 +298,44 @@ task("create-bread", "Creates Bread").setAction(async (_, hre) => {
   };
 
   await utils.write(logFile);
+
+  await mkdirp(tokensDir);
+
+  await writeJSON(`${tokensDir}/Bread.json`, logFile.Bread, {
+    spaces: 2,
+  });
+});
+
+task("create-rum", "Creates Rum").setAction(async (_, hre) => {
+  await utils.setup();
+  const logFile = utils.read();
+
+  if (!logFile.Doubloon) {
+    console.log("Deploy Doubloon first");
+    return;
+  }
+
+  const Rum = await hre.ethers.getContractFactory("Rum");
+  const rum = await Rum.deploy(
+    logFile.Doubloon.address,
+    process.env.BAR_OWNER!
+  );
+
+  await rum.deployed();
+
+  console.log("Rum deployed to:", rum.address);
+
+  logFile.Rum = {
+    address: rum.address,
+  };
+
+  await utils.write(logFile);
+
+  await mkdirp(tokensDir);
+
+  await writeJSON(`${tokensDir}/Rum.json`, logFile.Rum, {
+    spaces: 2,
+  });
 });
 
 task("buy-bread", "Give your doubloons, receive bread")
@@ -303,7 +368,7 @@ task("buy-bread", "Give your doubloons, receive bread")
     const approveTx = await doubloon.approve(bread.address, amount);
     await approveTx.wait();
 
-    await bread.bake();
+    await bread.buy();
 
     const breadSlices = await bread.balanceOf(process.env.PUBLIC_KEY!);
 
@@ -311,6 +376,44 @@ task("buy-bread", "Give your doubloons, receive bread")
     console.log("-----------------\n");
     console.log(
       "Now that you're fed, and have some coin on, you can continue your journey!"
+    );
+  });
+
+task("buy-Rum", "Give your doubloons, receive Rum")
+  .addPositionalParam(
+    "amount",
+    "The amount of doubloons you offer for Rum",
+    undefined,
+    types.int,
+    false
+  )
+  .setAction(async ({ amount }, hre) => {
+    await utils.setup();
+    const logFile = utils.read();
+
+    if (!logFile.Rum) {
+      console.log("Deploy Rum first");
+      return;
+    }
+
+    const doubloon = await hre.ethers.getContractAt(
+      "Doubloon",
+      logFile.Doubloon.address
+    );
+
+    const rum = await hre.ethers.getContractAt("Rum", logFile.Rum.address);
+
+    const approveTx = await doubloon.approve(rum.address, amount);
+    await approveTx.wait();
+
+    await rum.buy();
+
+    const RumSlices = await rum.balanceOf(process.env.PUBLIC_KEY!);
+
+    console.log("You now own:", RumSlices.toString(), "bottles of Rum!");
+    console.log("-----------------\n");
+    console.log(
+      "Now that you're fed and drunk, and have some coin on, you can continue your journey!"
     );
   });
 
@@ -340,6 +443,15 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+  abiExporter: {
+    path: abisDir,
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    spacing: 2,
+    pretty: true,
+    except: ["@openzeppelin"],
   },
 };
 

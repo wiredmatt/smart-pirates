@@ -163,15 +163,15 @@ describe(`Contracts tests`, () => {
     it("Should buy bread with doubloons", async () => {
       await fundWallet(goldMine, gold, doubloon);
 
-      const approveTx = await doubloon.approve(bread.address, 1);
+      const approveTx = await doubloon.approve(bread.address, 2); //2 DBL for 1 BREAD
       await approveTx.wait();
 
-      await bread.bake();
+      await bread.buy();
 
-      const breadSlices = await bread.balanceOf(process.env.PUBLIC_KEY!);
+      const breadBalance = await bread.balanceOf(process.env.PUBLIC_KEY!);
 
-      console.log("You now own:", breadSlices.toString(), "slices of Bread!");
-      expect(breadSlices.toString()).to.equal("10");
+      console.log("You now own:", breadBalance.toString(), "packs of Bread!");
+      expect(breadBalance.toString()).to.equal("1");
     });
   });
 });

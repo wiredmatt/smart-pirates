@@ -5,8 +5,10 @@
     "strict": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "lib": ["ES2018", "ESNext", "DOM", "ESNext.AsyncIterable"],
+    "moduleResolution": "Node"
   },
-  "include": ["./scripts", "./test", "./typechain"],
+  "include": ["./scripts", "./test", "./typechain", "index.ts"],
   "files": ["./hardhat.config.ts", "./utils/index.ts"]
 }

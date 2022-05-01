@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@metamask/providers": "^8.1.1",
+    "@smart-pirates/smart-contracts": "*",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^13.5.0",

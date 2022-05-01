@@ -1,0 +1,9 @@
+[
+  "constructor(address,address,bool[])",
+  "event FoundAsset(uint256,bool)",
+  "function EXPLORATION_FEE() view returns (uint256)",
+  "function gold() view returns (address)",
+  "function lookForGold(uint256) payable",
+  "function spots(uint256) view returns (bool)",
+  "function stone() view returns (address)"
+]

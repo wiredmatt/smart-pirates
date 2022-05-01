@@ -247,5 +247,14 @@ That was tedious, but it's how coins are made, you can't just drop in a bar with
 
 ```bash
 yarn hardhat create-bread --network development
-yarn hardhat buy-bread 1 --network development # pay with 1 doubloon to get 10 slices of fine bread.
+yarn hardhat buy-bread 1 --network development # pay with 2 doubloons to get a pack of fine bread
+```
+
+## Buying Rum
+
+You can't start your journey sober, buy some Rum first.
+
+```bash
+yarn hardhat create-rum --network development
+yarn hardhat buy-rum 3 --network development # pay with 3 doubloons to get a bottle of Rum.
 ```
