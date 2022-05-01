@@ -18,7 +18,7 @@ const Header: FC<IProps> = () => {
           </a>
         </div>
 
-        <div className="md:pt-14 md:pl-24">
+        <div className="md:pt-14 md:pl-48">
           <h1 className="text-center md:text-left text-4xl">
             The Decentralized Tavern
           </h1>
