@@ -8,7 +8,9 @@ import {
   useEnsName,
 } from "wagmi";
 
-import { Avatar, Box, Button, IconLockClosed, Skeleton, Stack } from "degen";
+import { Avatar, Box, IconLockClosed, Skeleton, Stack } from "degen";
+import Button from "../Button";
+
 import Metamask from "../../icons/metamask";
 import {
   changeNetwork,
@@ -22,7 +24,7 @@ interface IProps {}
 const connectorProps = [
   {
     name: "metamask",
-    icon: <Metamask style={{ paddingTop: 8 }} key="metamask" />,
+    icon: <Metamask style={{ paddingBottom: 2 }} key="metamask" />,
   },
 ];
 
@@ -38,74 +40,79 @@ const Account: FC<IProps> = () => {
 
   const isMounted = useIsMounted();
 
-  if (accountData && isMounted)
-    return (
-      <Stack
-        align="center"
-        direction={{ xs: "vertical", sm: "horizontal" }}
-        justify="space-between"
-      >
-        <Stack align="center" direction={{ xs: "vertical", sm: "horizontal" }}>
-          <Avatar
-            src={
-              (ensAvatarData as any) ||
-              getRandomPirateAvatar(accountData.address!)
-            }
-            label="ENS Avatar"
-          />
-          <Stack space="0">
-            <Box fontSize="large" textAlign={{ xs: "center", sm: "left" }}>
-              {ensNameData
-                ? `${ensNameData} (${formatAddress(accountData.address!)})`
-                : formatAddress(accountData.address!)}
-            </Box>
-            <Box
-              fontSize="small"
-              color="textSecondary"
-              textAlign={{ xs: "center", sm: "left" }}
-              display="flex"
-              gap="1"
-            >
-              Connected to{" "}
-              <Skeleton loading={!(isMounted && accountData?.connector)}>
-                {isMounted && accountData?.connector
-                  ? accountData.connector.name
-                  : "Wallet Name"}
-              </Skeleton>
-            </Box>
-          </Stack>
-        </Stack>
-
-        <Button variant="secondary" onClick={() => disconnect()}>
-          Disconnect
-        </Button>
-      </Stack>
-    );
-
   return (
-    <Stack align="flex-end">
-      {connectors.map((c) => (
-        <Button
-          key={c.name}
-          prefix={connectorProps.map((_c) =>
-            _c.name.toLowerCase() === c.name.toLowerCase() ? (
-              _c.icon
-            ) : (
-              <IconLockClosed key={c.name} />
-            )
-          )}
-          variant="primary"
-          width={{ xs: "full", md: "max" }}
-          onClick={async () => {
-            connect(c); // get permission to use metamask
-
-            await changeNetwork(c.chains[0]);
-          }}
+    <div>
+      {accountData && isMounted ? (
+        <Stack
+          align="center"
+          direction={{ xs: "vertical", sm: "horizontal" }}
+          justify="space-between"
         >
-          Connect {c.name} Wallet {}
-        </Button>
-      ))}
-    </Stack>
+          <div className="transition hover:scale-110 cursor-pointer">
+            <Stack
+              align="center"
+              direction={{ xs: "vertical", sm: "horizontal" }}
+            >
+              <Avatar
+                src={
+                  (ensAvatarData as any) ||
+                  getRandomPirateAvatar(accountData.address!)
+                }
+                label="ENS Avatar"
+              />
+              <Stack space="0">
+                <Box fontSize="large" textAlign={{ xs: "center", sm: "left" }}>
+                  <p className="font-bold">
+                    {ensNameData
+                      ? `${ensNameData} (${formatAddress(
+                          accountData.address!
+                        )})`
+                      : formatAddress(accountData.address!)}
+                  </p>
+                </Box>
+                <Box
+                  textAlign={{ xs: "center", sm: "left" }}
+                  display="flex"
+                  gap="1"
+                >
+                  <p>Connected to </p>
+                  <Skeleton loading={!(isMounted && accountData?.connector)}>
+                    <p>
+                      {isMounted && accountData?.connector
+                        ? accountData.connector.name
+                        : "Wallet Name"}
+                    </p>
+                  </Skeleton>
+                </Box>
+              </Stack>
+            </Stack>
+          </div>
+
+          <button onClick={() => disconnect()}>Disconnect</button>
+        </Stack>
+      ) : (
+        <Stack align="flex-end">
+          {connectors.map((c) => (
+            <div className="font-lobster">
+              <Button
+                key={c.name}
+                onClick={async () => {
+                  connect(c); // get permission to use metamask
+                  await changeNetwork(c.chains[0]);
+                }}
+                leftIcon={
+                  connectorProps.find(
+                    (_c) => _c.name.toLowerCase() === c.name.toLowerCase()
+                  )?.icon || <IconLockClosed key={c.name} />
+                }
+              >
+                Connect {c.name} Wallet
+              </Button>
+            </div>
+          ))}
+        </Stack>
+      )}
+    </div>
   );
 };
 

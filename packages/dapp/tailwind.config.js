@@ -5,6 +5,10 @@ module.exports = {
       fontFamily: {
         lobster: ["Lobster", "cursive"],
       },
+      backgroundImage: {
+        "paper-pattern":
+          "linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url('/public/assets/paper_bg.jpg')",
+      },
     },
   },
   plugins: [],

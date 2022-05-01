@@ -43,7 +43,7 @@ export const changeNetwork = async (chain: Chain) => {
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: "0x" + new Number(chain.id).toString(16),
+              chainId: "0x" + chain.id.toString(16),
             },
           ],
         });
@@ -55,7 +55,7 @@ export const changeNetwork = async (chain: Chain) => {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId: "0x" + new Number(chain.id).toString(16),
+              chainId: "0x" + chain.id.toString(16),
               chainName: chain.name,
               nativeCurrency: chain.nativeCurrency,
               rpcUrls: [chain.rpcUrls.default],
@@ -75,7 +75,7 @@ export const changeNetwork = async (chain: Chain) => {
 };
 
 export const formatAddress = (address: string) => {
-  return `${address.slice(0, 6)}…${address.slice(38, 42)}`;
+  return `${address.slice(0, 6)}...${address.slice(36, 42)}`;
 };
 
 export const getRandomPirateAvatar = (address: string) => {
