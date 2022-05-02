@@ -9,6 +9,6 @@
     "lib": ["ES2018", "ESNext", "DOM", "ESNext.AsyncIterable"],
     "moduleResolution": "Node"
   },
-  "include": ["./scripts", "./test", "./typechain", "index.ts"],
-  "files": ["./hardhat.config.ts", "./utils/index.ts"]
+  "include": ["./scripts", "./test", "./typechain"],
+  "files": ["./hardhat.config.ts", "./utils/index.ts", "./deploy-all.ts"]
 }

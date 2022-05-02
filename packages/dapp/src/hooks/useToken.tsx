@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { currencies } from "../utils/web3";
 
-const useToken = (currency: "doubloon" = "doubloon") => {
+const useToken = (currency: "doubloon") => {
   const { data: account } = useAccount();
   const [balance, setBalance] = useState<string>("0");
   const [name, setName] = useState<string>("Token");

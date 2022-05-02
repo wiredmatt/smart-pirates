@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "deploy-all": "ts-node deploy-all.ts",
+    "deploy-all:local": "rm -rf logs/deploy-development.log.json ; yarn hardhat node & sleep 5 && ts-node deploy-all.ts"
+  },
   "dependencies": {
     "@openzeppelin/contracts": "^4.5.0",
     "dotenv": "^10.0.0",
