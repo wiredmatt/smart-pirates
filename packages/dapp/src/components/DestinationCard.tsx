@@ -1,18 +1,18 @@
 import { FC } from "react";
 
-interface PathObject {
+interface DestinationObject {
   title: string;
   url: string;
   description: string;
   image: string;
 }
 
-const PathCard: FC<PathObject> = ({ title, description, image, url }) => {
+const DestinationCard: FC<DestinationObject> = ({ title, description, image, url }) => {
   return (
     <a href={url} className="hover:scale-105 transition-transform">
       <div className="rounded-2xl bg-orange-300">
         <div className="relative h-full w-96">
-          <span className="absolute pl-4 pt-2 text-xl">{title}</span>
+          <span className="absolute pl-4 pt-2 text-2xl">{title}</span>
           <img
             src={image}
             alt={title}
@@ -27,4 +27,4 @@ const PathCard: FC<PathObject> = ({ title, description, image, url }) => {
   );
 };
 
-export default PathCard;
+export default DestinationCard;

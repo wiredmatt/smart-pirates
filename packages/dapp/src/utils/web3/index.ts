@@ -17,6 +17,7 @@ import BreadData from "./contracts/data/Bread.json";
 import RumData from "./contracts/data/Rum.json";
 
 import { Interface } from "@ethersproject/abi";
+import { parseEther } from "ethers/lib/utils";
 
 export const chains: Chain[] = [
   {
@@ -149,8 +150,41 @@ export class SmartContract {
   }
 }
 
-export class Token extends SmartContract {
+export class GoldMine extends SmartContract {
+  async spotsCount(): Promise<number> {
+    return await this.instance.spotsCount();
+  }
 
+  async explorationFee(): Promise<string> {
+    const fee = await this.instance.explorationFee();
+    return parseEther(fee).toString();
+  }
+
+  async lookForGold(spot: number): Promise<boolean> {
+    if (!this.provider) throw Error("Provider not provided");
+    if (!this.signer) throw Error("Signer not provided");
+
+    const fee = await this.explorationFee();
+
+    const tx = await this.instance.lookForGold(spot, {
+      value: parseEther(fee),
+    });
+
+    const result = tx.wait();
+
+    const event = result.events?.find((e: any) => e.event === "FoundAsset");
+
+    if (event?.args) {
+      const [_, isGold] = event?.args;
+
+      return isGold;
+    } else {
+      throw Error("Tx not sent");
+    }
+  }
+}
+
+export class Token extends SmartContract {
   async balanceOf(address: string) {
     return await this.instance.balanceOf(address);
   }
@@ -232,3 +266,18 @@ export const items: Item[] = [
     currencies.doubloon
   ),
 ];
+
+export const GoldMines: GoldMine[] = GoldMinesData.map(
+  (gm, i) =>
+    new GoldMine(
+      `GoldMine #${i + 1} ${formatAddress(gm)}`,
+      GoldMineABI,
+      gm,
+      "A mine in which you can find gold"
+    )
+);
+
+export const part = <T>(a: T[], n: number): T[][] => {
+  const b = Math.ceil(a.length / n);
+  return [...Array(n)].map((_, i) => a.slice(i * b, (i + 1) * b));
+};

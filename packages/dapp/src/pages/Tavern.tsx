@@ -33,7 +33,7 @@ const Tavern: FC<IProps> = () => {
         <div className="absolute left-12 top-4 z-20">
           <Back />
         </div>
-        <div className="absolute top-2 right-12 text-white space-x-1">
+        <div className="absolute top-4 right-14 text-white space-x-1">
           <BalancesHUD />
         </div>
         <div className="absolute top-24 text-white px-8">

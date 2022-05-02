@@ -17,6 +17,7 @@ import Layout from "./components/layout";
 
 import "./index.css";
 import Tavern from "./pages/Tavern";
+import Mines from "./pages/Mines";
 
 const client = createClient({
   autoConnect: true,
@@ -37,6 +38,7 @@ const App: FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tavern" element={<Tavern />} />
+            <Route path="/mines" element={<Mines />} />
           </Routes>
         </Layout>
       </ThemeProvider>

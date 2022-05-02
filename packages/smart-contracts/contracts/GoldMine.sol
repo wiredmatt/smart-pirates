@@ -6,6 +6,7 @@ import "./Stone.sol";
 contract GoldMine {
     uint256 public constant EXPLORATION_FEE = 0.1 ether;
     bool[] public spots;
+    uint256 public spotsCount;
     Gold public gold;
     Stone public stone;
 
@@ -20,6 +21,7 @@ contract GoldMine {
         gold = Gold(_gold);
         stone = Stone(_stone);
         spots = _spots;
+        spotsCount = _spots.length;
     }
 
     function lookForGold(uint256 spot) public payable {

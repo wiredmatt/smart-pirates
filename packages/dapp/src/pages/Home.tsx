@@ -1,5 +1,5 @@
 import { FC, useEffect } from "react";
-import Paths from "../components/Paths";
+import Destinations from "../components/Destinations";
 import BalancesHUD from "../components/web3/BalancesHUD";
 import useAudio from "../hooks/useAudio";
 
@@ -20,11 +20,12 @@ const Home: FC<IProps> = () => {
           className="flex object-fit overflow-x-hidden rounded-3xl"
           alt="pub"
         ></img>
-        <div className="absolute top-2 right-12 text-white space-x-1 object-fit">
+        <div className="absolute top-4 right-14 text-white space-x-1 object-fit">
           <BalancesHUD />
         </div>
-        <div className="absolute top-48 text-white px-36 w-1/2">
-          <Paths />
+        <div className="absolute top-36 text-white px-36 w-full space-y-4">
+          <h1 className="text-4xl text-center text-black">Choose a destination</h1>
+          <Destinations />
         </div>
       </div>
     </div>
