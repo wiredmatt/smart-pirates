@@ -11,7 +11,7 @@ const Header: FC<IProps> = () => {
         <div className="pt-5 self-center hover:scale-105 transition-transform">
           <a href="/">
             <Avatar
-              src="/assets/the_tavern_2.jpg"
+              src="/assets/logo.jpg"
               label="logo"
               size={"36"}
             ></Avatar>
@@ -20,7 +20,7 @@ const Header: FC<IProps> = () => {
 
         <div className="md:pt-14 md:pl-48">
           <h1 className="text-center md:text-left text-4xl">
-            The Decentralized Tavern
+            Smart Pirates
           </h1>
         </div>
 

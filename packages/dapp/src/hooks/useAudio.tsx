@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useAudio = (url: string) => {
+const useAudio = (url: string, vol: number = 0.2) => {
   const [audio] = useState<HTMLAudioElement>(new Audio(url));
   const [playing, setPlaying] = useState<boolean>(false);
 
@@ -17,13 +17,13 @@ const useAudio = (url: string) => {
   }, [playing, audio]);
 
   useEffect(() => {
-    audio.volume = 0.2;
+    audio.volume = vol;
 
     audio.addEventListener("ended", () => setPlaying(false));
     return () => {
       audio.removeEventListener("ended", () => setPlaying(false));
     };
-  }, [audio]);
+  }, [audio, vol]);
 
   return {
     playing,

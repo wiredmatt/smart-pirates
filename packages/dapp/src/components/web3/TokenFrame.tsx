@@ -17,11 +17,11 @@ const TokenFrame: FC<IProps> = ({
 }) => {
   return (
     <div
-      className="h-24 w-24 relative text-black font-black rounded-xl"
+      className="h-32 w-32 relative text-black font-black rounded-xl  hover:scale-105 transition-transform"
       title={description}
     >
       <img
-        src="/assets/paper_bg.jpg"
+        src="/assets/backgrounds/paper_bg.jpg"
         className="flex object-cover overflow-x-hidden absolute opacity-75 rounded-xl"
         alt="paper background"
       ></img>
@@ -40,9 +40,9 @@ const TokenFrame: FC<IProps> = ({
         </span>
       </div>
       <img
-        className="z-10 absolute top-10 left-8"
-        width={36}
-        height={36}
+        className="z-10 absolute top-12 left-12"
+        width={40}
+        height={40}
         src={icon}
         alt={name}
       ></img>
