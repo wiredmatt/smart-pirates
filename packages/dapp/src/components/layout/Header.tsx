@@ -7,7 +7,7 @@ interface IProps {}
 const Header: FC<IProps> = () => {
   return (
     <>
-      <div className="flex flex-col justify-center md:flex-row md:justify-between md:px-12 w-screen font-lobster">
+      <div className="flex flex-col justify-center md:flex-row md:justify-between md:px-12 w-full font-lobster">
         <div className="pt-5 self-center hover:scale-105 transition-transform">
           <a href="/">
             <Avatar

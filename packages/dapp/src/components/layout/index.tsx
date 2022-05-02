@@ -8,7 +8,7 @@ const Layout: FC<PropsWithChildren<IProps>> = ({ children }) => {
   return (
     <div className="bg-paper-pattern w-full min-h-screen bg-no-repeat bg-cover">
       <Header />
-      <main className="font-lobster mt-10">{children}</main>
+      <main className="font-lobster mt-10 overflow-x-hidden">{children}</main>
       <Footer />
     </div>
   );

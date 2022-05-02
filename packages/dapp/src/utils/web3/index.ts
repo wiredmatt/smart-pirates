@@ -110,10 +110,11 @@ export const getRandomPirateAvatar = (address: string) => {
   return pirateIcon;
 };
 
-class SmartContract {
+export class SmartContract {
   name: string;
   abi: any;
   address: string;
+  description: string; // tooltip text to show when user hovers over token
 
   instance: ethers.Contract;
   provider?: ethers.providers.Provider | ethers.providers.Web3Provider;
@@ -123,12 +124,14 @@ class SmartContract {
     _name: string,
     _abi: any,
     _address: string,
+    _description: string,
     _provider?: ethers.providers.Web3Provider | undefined,
     _signer?: ethers.Signer
   ) {
     this.name = _name;
     this.abi = _abi;
     this.address = _address;
+    this.description = _description;
     this.instance = new ethers.Contract(_address, _abi);
     this.provider =
       _provider ||
@@ -146,7 +149,8 @@ class SmartContract {
   }
 }
 
-class Token extends SmartContract {
+export class Token extends SmartContract {
+
   async balanceOf(address: string) {
     return await this.instance.balanceOf(address);
   }
@@ -159,18 +163,19 @@ class Token extends SmartContract {
   }
 }
 
-class Item extends Token {
+export class Item extends Token {
   doubloon: Token;
 
   constructor(
     _name: string,
     _abi: any,
     _address: string,
+    _description: string,
     _doubloon: Token,
     _provider?: ethers.providers.Web3Provider | undefined,
     _signer?: ethers.Signer
   ) {
-    super(_name, _abi, _address, _provider, _signer);
+    super(_name, _abi, _address, _description, _provider, _signer);
     this.doubloon = _doubloon;
   }
 
@@ -187,21 +192,43 @@ class Item extends Token {
   }
 }
 
-// export const resources = {
-//   gold: new Token("Gold", new Interface(GoldABI), GoldData.address),
-//   stone: new Token("Stone", new Interface(StoneABI), StoneData.address),
-// };
-
-export const currencies = {
-  doubloon: new Token("Doubloon", DoubloonABI, DoubloonData.address),
+export const resources = {
+  gold: new Token(
+    "Gold",
+    GoldABI,
+    GoldData.address,
+    "Gold, a resource that can be found in Gold mines and exchanged for Doubloons"
+  ),
+  stone: new Token(
+    "Stone",
+    StoneABI,
+    StoneData.address,
+    "Stone, a resource found in mines, quite useless"
+  ),
 };
 
-// export const items: Item[] = [
-//   new Item(
-//     "Bread",
-//     new Interface(BreadABI),
-//     BreadData.address,
-//     currencies.doubloon
-//   ),
-//   new Item("Rum", new Interface(RumABI), RumData.address, currencies.doubloon),
-// ];
+export const currencies = {
+  doubloon: new Token(
+    "Doubloon",
+    DoubloonABI,
+    DoubloonData.address,
+    "Doubloon, the main currency used by pirates, with it you can buy anything you'd like from The Tavern"
+  ),
+};
+
+export const items: Item[] = [
+  new Item(
+    "Bread",
+    BreadABI,
+    BreadData.address,
+    "Looks edible...",
+    currencies.doubloon
+  ),
+  new Item(
+    "Rum",
+    RumABI,
+    RumData.address,
+    "Getting drunk might make your journey easier, you might finish it sooner than you thought thanks to it! (Definitely not because you'd be more likely to die)",
+    currencies.doubloon
+  ),
+];

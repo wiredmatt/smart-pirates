@@ -11,6 +11,16 @@ module.exports = {
         "pub-pattern":
           "linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url('/public/assets/pub_bg.jpg')",
       },
+      animation: {
+        fade: "fadeIn 2s ease-in-out",
+      },
+
+      keyframes: () => ({
+        fadeIn: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+      }),
     },
   },
   plugins: [],
