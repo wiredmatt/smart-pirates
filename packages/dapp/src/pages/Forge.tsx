@@ -1,6 +1,8 @@
 import { FC, useEffect } from "react";
+import Swap from "../components/swap";
 import BalancesHUD from "../components/web3/BalancesHUD";
 import useAudio from "../hooks/useAudio";
+import { currencies, resources } from "../utils/web3";
 
 interface IProps {}
 
@@ -22,11 +24,13 @@ const Forge: FC<IProps> = () => {
         <div className="absolute top-4 right-14 text-white space-x-1 object-fit">
           <BalancesHUD />
         </div>
-        <div className="absolute top-36 text-white px-36 w-full space-y-4">
+        <div className="absolute top-36 text-white px-36 w-full space-y-24">
           <h1 className="text-4xl text-center text-white">
             Specify the amount of Gold you want to melt
           </h1>
-          <span>hello world</span>
+          <div className="h-full flex flex-row justify-center">
+            <Swap tokenIn={resources.gold} tokenOut={currencies.doubloon} />
+          </div>
         </div>
       </div>
     </div>
