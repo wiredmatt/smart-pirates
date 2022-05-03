@@ -188,6 +188,21 @@ export class GoldMine extends SmartContract {
 }
 
 export class Token extends SmartContract {
+  decimals: number = 0;
+
+  constructor(
+    _name: string,
+    _abi: any,
+    _address: string,
+    _description: string,
+    _decimals: number,
+    _provider?: ethers.providers.Web3Provider | undefined,
+    _signer?: ethers.Signer
+  ) {
+    super(_name, _abi, _address, _description, _provider, _signer);
+    this.decimals = _decimals;
+  }
+
   async balanceOf(address: string) {
     return await this.instance.balanceOf(address);
   }
@@ -217,11 +232,12 @@ export class Item extends Token {
     _abi: any,
     _address: string,
     _description: string,
+    _decimals: number,
     _doubloon: Token,
     _provider?: ethers.providers.Web3Provider | undefined,
     _signer?: ethers.Signer
   ) {
-    super(_name, _abi, _address, _description, _provider, _signer);
+    super(_name, _abi, _address, _description, _decimals, _provider, _signer);
     this.doubloon = _doubloon;
   }
 
@@ -243,13 +259,15 @@ export const resources = {
     "Gold",
     GoldABI,
     GoldData.address,
-    "Gold, a resource that can be found in Gold mines and exchanged for Doubloons"
+    "Gold, a resource that can be found in Gold mines and exchanged for Doubloons",
+    0
   ),
   stone: new Token(
     "Stone",
     StoneABI,
     StoneData.address,
-    "Stone, a resource found in mines, quite useless"
+    "Stone, a resource found in mines, quite useless",
+    0
   ),
 };
 
@@ -258,7 +276,8 @@ export const currencies = {
     "Doubloon",
     DoubloonABI,
     DoubloonData.address,
-    "Doubloon, the main currency used by pirates, with it you can buy anything you'd like from The Tavern"
+    "Doubloon, the main currency used by pirates, with it you can buy anything you'd like from The Tavern",
+    0
   ),
 };
 
@@ -268,6 +287,7 @@ export const items: Item[] = [
     BreadABI,
     BreadData.address,
     "Looks edible...",
+    0,
     currencies.doubloon
   ),
   new Item(
@@ -275,6 +295,7 @@ export const items: Item[] = [
     RumABI,
     RumData.address,
     "Getting drunk might make your journey easier, you might finish it sooner than you thought thanks to it! (Definitely not because you'd be more likely to die)",
+    0,
     currencies.doubloon
   ),
 ];

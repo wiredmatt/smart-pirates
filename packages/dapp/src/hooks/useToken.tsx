@@ -65,7 +65,17 @@ export const useToken = (token: Token) => {
     return _allowance.toString();
   };
 
-  return { balance, name, symbol, icon, description, exchangeRate, allowance };
+  return {
+    balance,
+    name,
+    symbol,
+    icon,
+    description,
+    exchangeRate,
+    allowance,
+    address: token.address,
+    decimals: token.decimals,
+  };
 };
 
 export const useCurrency = (currency: "doubloon") => {

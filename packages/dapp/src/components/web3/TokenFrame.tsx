@@ -6,6 +6,8 @@ interface IProps {
   balance: string;
   icon: string;
   description: string;
+  address: string;
+  decimals: number;
 }
 
 const TokenFrame: FC<IProps> = ({
@@ -14,11 +16,35 @@ const TokenFrame: FC<IProps> = ({
   balance,
   icon,
   description,
+  address,
+  decimals,
 }) => {
   return (
     <div
-      className="h-32 w-32 relative text-black font-black rounded-xl  hover:scale-105 transition-transform"
-      title={description}
+      className="h-32 w-32 relative text-black font-black rounded-xl  hover:scale-105 transition-transform cursor-pointer"
+      title={description + "\nClick to add to Metamask"}
+      onClick={() => {
+        window.ethereum
+          ?.request({
+            method: "wallet_watchAsset",
+            params: {
+              type: "ERC20",
+              options: {
+                address: address,
+                symbol: symbol,
+                decimals: decimals,
+                image: window.location.origin + icon,
+              },
+            },
+          })
+          .then((success) => {
+            if (success) {
+              console.log("added token");
+            } else {
+              console.log("nani");
+            }
+          });
+      }}
     >
       <img
         src="/assets/backgrounds/paper_bg.jpg"

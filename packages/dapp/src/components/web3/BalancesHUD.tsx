@@ -20,6 +20,8 @@ const BalancesHUD: FC<IProps> = () => {
           balance={token.balance}
           icon={token.icon}
           description={token.description}
+          address={token.address}
+          decimals={token.decimals}
         ></TokenFrame>
       ))}
     </div>
