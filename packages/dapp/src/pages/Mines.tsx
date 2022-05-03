@@ -18,7 +18,7 @@ const Mines: FC<IProps> = () => {
           alt="mines"
         ></img>
         <div className="absolute left-16 top-12 z-20">
-          <Back />
+          <Back url="/" />
         </div>
         <div className="absolute top-12 right-24 text-white space-x-1">
           <BalancesHUD />

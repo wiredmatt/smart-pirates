@@ -68,7 +68,7 @@ const GoldMineInside: FC<IProps> = () => {
           alt="mine"
         ></img>
         <div className="absolute left-12 top-4 z-20">
-          <Back />
+          <Back url="/mines" />
         </div>
         <div className="absolute top-4 right-14 text-white space-x-1">
           <BalancesHUD />

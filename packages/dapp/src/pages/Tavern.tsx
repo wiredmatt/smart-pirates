@@ -31,7 +31,7 @@ const Tavern: FC<IProps> = () => {
           alt="pub"
         ></img>
         <div className="absolute left-12 top-4 z-20">
-          <Back />
+          <Back url="/" />
         </div>
         <div className="absolute top-4 right-14 text-white space-x-1">
           <BalancesHUD />

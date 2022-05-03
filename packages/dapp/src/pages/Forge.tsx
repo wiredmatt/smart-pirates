@@ -1,4 +1,5 @@
 import { FC, useEffect } from "react";
+import Back from "../components/Back";
 import ForgeSwap from "../components/swap/Forge";
 import BalancesHUD from "../components/web3/BalancesHUD";
 import useAudio from "../hooks/useAudio";
@@ -6,7 +7,7 @@ import useAudio from "../hooks/useAudio";
 interface IProps {}
 
 const Forge: FC<IProps> = () => {
-  const { play } = useAudio("/assets/sounds/forge.mp3", 0.03);
+  const { play } = useAudio("/assets/sounds/forge.mp3", 0.01);
 
   useEffect(() => {
     play();
@@ -20,6 +21,9 @@ const Forge: FC<IProps> = () => {
           className="flex object-fit overflow-x-hidden rounded-3xl"
           alt="blacksmith"
         ></img>
+        <div className="absolute left-12 top-4 z-20">
+          <Back url="/" />
+        </div>
         <div className="absolute top-4 right-14 text-white space-x-1 object-fit">
           <BalancesHUD />
         </div>

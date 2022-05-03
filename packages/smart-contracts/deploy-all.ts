@@ -12,7 +12,7 @@ const sortedTokens = Object.keys(tokens)
   .sort()
   .map((k) => Object.values(tokens).at(parseInt(k)));
 
-const goldMines = 5; // number of gold mines to open
+const goldMines = 6; // number of gold mines to open
 
 const main = async () => {
   for (let i = 0; i < sortedTokens.length; i++) {

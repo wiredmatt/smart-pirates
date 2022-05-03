@@ -1,14 +1,14 @@
 import { FC } from "react";
 
-interface IProps {}
+interface IProps {
+  url: string;
+}
 
-const Back: FC<IProps> = () => {
+const Back: FC<IProps> = ({ url }) => {
   return (
-    <div
+    <a
       className="hover:scale-105 transition-transform cursor-pointer"
-      onClick={() => {
-        window.location.href = document.referrer;
-      }}
+      href={url}
     >
       <img
         className="relative"
@@ -18,7 +18,7 @@ const Back: FC<IProps> = () => {
         alt="back"
       ></img>
       <span className="text-white absolute top-14 left-6">Go back</span>
-    </div>
+    </a>
   );
 };
 
