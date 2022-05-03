@@ -154,7 +154,7 @@ task("open-gold-mine", "Opens a gold mine to find gold!").setAction(
       console.log("Deploy Gold and Stone first!");
     }
 
-    const spots = generateRandomSpots(100);
+    const spots = generateRandomSpots(10);
 
     const GoldMine = await hre.ethers.getContractFactory("GoldMine");
     const goldMine = await GoldMine.deploy(

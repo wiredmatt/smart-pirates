@@ -9,8 +9,6 @@ interface IProps {}
 const Mines: FC<IProps> = () => {
   const rows = part(GoldMines, 2);
 
-  console.log(rows.length);
-
   return (
     <div className="h-full w-full relative">
       <div className="flex px-8 pb-2 animate-fade transition-all">

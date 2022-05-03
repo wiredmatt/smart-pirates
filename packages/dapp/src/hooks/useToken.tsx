@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { currencies, resources } from "../utils/web3";
+import { currencies, resources, Token } from "../utils/web3";
 
-export const useCurrency = (currency: "doubloon") => {
+export const useToken = (token: Token) => {
   const { data: account } = useAccount();
   const [balance, setBalance] = useState<string>("0");
   const [name, setName] = useState<string>("Token");
@@ -13,67 +13,49 @@ export const useCurrency = (currency: "doubloon") => {
   useEffect(() => {
     (async () => {
       if (account?.address) {
-        const provider = await account.connector?.getProvider();
-        const signer = await account.connector?.getSigner();
+        if (account.connector?.getProvider) {
+          const provider = await account.connector?.getProvider();
+          const signer = await account.connector?.getSigner();
 
-        if (!signer) {
-          return;
+          if (signer) {
+            await token.connect(provider, signer);
+            const balance = await token.balanceOf(account.address);
+
+            setBalance(balance.toString());
+
+            token.instance.on("Transfer", async (_, to, __, ___) => {
+              if (to === account.address) {
+                const balance = await token.balanceOf(account.address!);
+
+                setBalance(balance.toString());
+              }
+            });
+          }
         }
-
-        await currencies[currency].connect(provider, signer);
-
-        const balance = await currencies[currency].balanceOf(account.address!);
-
-        setBalance(balance.toString());
-
-        const name = await currencies[currency].instance.name();
-        const symbol = await currencies[currency].instance.symbol();
-
-        setName(name);
-        setSymbol(symbol);
-        setIcon(`/assets/tokens/${symbol}.png`);
-        setDescription(currencies[currency].description);
+      } else {
+        setBalance("0");
       }
+
+      const name = await token.instance.name();
+      const symbol = await token.instance.symbol();
+
+      setName(name);
+      setSymbol(symbol);
+
+      setIcon(`/assets/tokens/${symbol}.png`);
+      setDescription(token.description);
     })();
-  }, [account, currency]);
+
+    return () => {};
+  }, [account, token]);
 
   return { balance, name, symbol, icon, description };
 };
 
+export const useCurrency = (currency: "doubloon") => {
+  return useToken(currencies[currency]);
+};
+
 export const useResource = (resource: "gold" | "stone") => {
-  const { data: account } = useAccount();
-  const [balance, setBalance] = useState<string>("0");
-  const [name, setName] = useState<string>("Token");
-  const [symbol, setSymbol] = useState<string>("TKN");
-  const [icon, setIcon] = useState<string>("/assets/token/placeholder.png");
-  const [description, setDescription] = useState<string>("A token");
-
-  useEffect(() => {
-    (async () => {
-      if (account?.address) {
-        const provider = await account.connector?.getProvider();
-        const signer = await account.connector?.getSigner();
-
-        if (!signer) {
-          return;
-        }
-
-        await resources[resource].connect(provider, signer);
-
-        const balance = await resources[resource].balanceOf(account.address!);
-
-        setBalance(balance.toString());
-
-        const name = await resources[resource].instance.name();
-        const symbol = await resources[resource].instance.symbol();
-
-        setName(name);
-        setSymbol(symbol);
-        setIcon(`/assets/tokens/${symbol}.png`);
-        setDescription(resources[resource].description);
-      }
-    })();
-  }, [account, resource]);
-
-  return { balance, name, symbol, icon, description };
+  return useToken(resources[resource]);
 };

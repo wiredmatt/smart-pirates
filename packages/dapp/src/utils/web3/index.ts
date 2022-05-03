@@ -16,9 +16,6 @@ import GoldMinesData from "./contracts/data/GoldMines.json";
 import BreadData from "./contracts/data/Bread.json";
 import RumData from "./contracts/data/Rum.json";
 
-import { Interface } from "@ethersproject/abi";
-import { parseEther } from "ethers/lib/utils";
-
 export const chains: Chain[] = [
   {
     id: 1337,
@@ -133,7 +130,6 @@ export class SmartContract {
     this.abi = _abi;
     this.address = _address;
     this.description = _description;
-    this.instance = new ethers.Contract(_address, _abi);
     this.provider =
       _provider ||
       new ethers.providers.JsonRpcProvider(undefined, {
@@ -141,6 +137,12 @@ export class SmartContract {
         name: "development",
       });
     this.signer = _signer;
+
+    this.instance = new ethers.Contract(
+      _address,
+      _abi,
+      this.signer || this.provider
+    );
   }
 
   async connect(provider: ethers.providers.Provider, signer: ethers.Signer) {
@@ -152,12 +154,13 @@ export class SmartContract {
 
 export class GoldMine extends SmartContract {
   async spotsCount(): Promise<number> {
-    return await this.instance.spotsCount();
+    const bn = await this.instance.spotsCount();
+    return parseInt(bn.toString());
   }
 
   async explorationFee(): Promise<string> {
-    const fee = await this.instance.explorationFee();
-    return parseEther(fee).toString();
+    const fee = await this.instance.EXPLORATION_FEE();
+    return fee.toString();
   }
 
   async lookForGold(spot: number): Promise<boolean> {
@@ -167,15 +170,15 @@ export class GoldMine extends SmartContract {
     const fee = await this.explorationFee();
 
     const tx = await this.instance.lookForGold(spot, {
-      value: parseEther(fee),
+      value: fee,
     });
 
-    const result = tx.wait();
+    const result = await tx.wait();
 
     const event = result.events?.find((e: any) => e.event === "FoundAsset");
 
     if (event?.args) {
-      const [_, isGold] = event?.args;
+      const [, isGold] = event?.args;
 
       return isGold;
     } else {
