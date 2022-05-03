@@ -9,6 +9,7 @@ export const useToken = (token: Token) => {
   const [symbol, setSymbol] = useState<string>("TKN");
   const [icon, setIcon] = useState<string>("");
   const [description, setDescription] = useState<string>("A token");
+  const [exchangeRate, setExchangeRate] = useState<number>(0);
 
   useEffect(() => {
     (async () => {
@@ -23,8 +24,8 @@ export const useToken = (token: Token) => {
 
             setBalance(balance.toString());
 
-            token.instance.on("Transfer", async (_, to, __, ___) => {
-              if (to === account.address) {
+            token.instance.on("Transfer", async (from, to, __, ___) => {
+              if (to === account.address || from === account.address) {
                 const balance = await token.balanceOf(account.address!);
 
                 setBalance(balance.toString());
@@ -34,6 +35,13 @@ export const useToken = (token: Token) => {
         }
       } else {
         setBalance("0");
+      }
+
+      try {
+        const _exchangeRate = await token.exchangeRate();
+        setExchangeRate(parseInt(_exchangeRate));
+      } catch (e) {
+        console.log(e);
       }
 
       const name = await token.instance.name();
@@ -47,9 +55,17 @@ export const useToken = (token: Token) => {
     })();
 
     return () => {};
-  }, [account, token]);
+  }, [account, account?.address, token]);
 
-  return { balance, name, symbol, icon, description };
+  const allowance = async (address: string) => {
+    const _allowance = await token.instance.allowance(
+      account?.address,
+      address
+    );
+    return _allowance.toString();
+  };
+
+  return { balance, name, symbol, icon, description, exchangeRate, allowance };
 };
 
 export const useCurrency = (currency: "doubloon") => {

@@ -9,12 +9,17 @@ interface IProps
   rightIcon?: JSX.Element;
   bgColor?: string;
   textColor?: string;
+  textSize?: string;
 }
 
 const Button: FC<IProps> = (props) => {
   return (
     <button
-      className={`text-xl rounded-2xl ${props.bgColor} ${props.textColor} p-3 hover:scale-105 transition-transform flex flex-row space-x-2 opacity-90 hover:opacity-100`}
+      className={`${props.textSize || "text-xl"} rounded-2xl ${
+        props.bgColor
+      } ${
+        props.textColor
+      } p-3 hover:scale-105 transition-transform flex flex-row space-x-2 opacity-90 hover:opacity-100`}
       onClick={props.onClick}
     >
       {props.leftIcon}

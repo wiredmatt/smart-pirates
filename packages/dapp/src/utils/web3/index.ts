@@ -198,6 +198,15 @@ export class Token extends SmartContract {
 
     return await this.instance.approve(address, amount);
   }
+
+  async exchangeRate() {
+    try {
+      const rate = await this.instance.EXCHANGE_RATE();
+      return rate.toString();
+    } catch (e) {
+      return "0";
+    }
+  }
 }
 
 export class Item extends Token {

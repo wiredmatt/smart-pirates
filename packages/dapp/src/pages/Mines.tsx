@@ -13,7 +13,7 @@ const Mines: FC<IProps> = () => {
     <div className="h-full w-full relative">
       <div className="flex px-8 pb-2 animate-fade transition-all">
         <img
-          src="/assets/backgrounds/mines_bg.png"
+          src="/assets/backgrounds/dirt_bg.jpg"
           className="flex object-cover overflow-x-hidden rounded-3xl"
           alt="mines"
         ></img>
@@ -23,7 +23,7 @@ const Mines: FC<IProps> = () => {
         <div className="absolute top-12 right-24 text-white space-x-1">
           <BalancesHUD />
         </div>
-        <h1 className="absolute top-36 pt-4 text-4xl text-center w-full text-black">
+        <h1 className="absolute top-36 pt-4 text-4xl text-center w-full text-white">
           Choose a mine to explore
         </h1>
         <div className="absolute left-0 top-56 text-white px-8 w-full flex flex-col space-y-4">
