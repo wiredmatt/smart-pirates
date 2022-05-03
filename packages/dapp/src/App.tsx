@@ -19,6 +19,7 @@ import "./index.css";
 import Tavern from "./pages/Tavern";
 import Mines from "./pages/Mines";
 import GoldMineInside from "./pages/GoldMineInside";
+import Forge from "./pages/Forge";
 
 const client = createClient({
   autoConnect: true,
@@ -39,6 +40,7 @@ const App: FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tavern" element={<Tavern />} />
+            <Route path="/forge" element={<Forge />} />
             <Route path="/mines" element={<Mines />} />
             <Route path="/mine/:address" element={<GoldMineInside />} />
           </Routes>

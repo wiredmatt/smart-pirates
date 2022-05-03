@@ -3,7 +3,7 @@ import PathCard from "./DestinationCard";
 
 interface IProps {}
 
-const paths = [
+const destinations = [
   {
     title: "The Mines",
     url: "/mines",
@@ -11,8 +11,8 @@ const paths = [
     image: "/assets/destinations/the_mines.png",
   },
   {
-    title: "The Blacksmith",
-    url: "/blacksmith",
+    title: "The Forge",
+    url: "/forge",
     description: "Melt your gold and get doubloons",
     image: "/assets/destinations/the_blacksmith.png",
   },
@@ -28,8 +28,8 @@ const Paths: FC<IProps> = () => {
   return (
     <div className="h-64">
       <div className="flex flex-row justify-between space-x-8 self-center">
-        {paths.map((p) => (
-          <PathCard {...p} key={p.url} />
+        {destinations.map((d) => (
+          <PathCard {...d} key={d.url} />
         ))}
       </div>
     </div>
