@@ -7,7 +7,7 @@ import TavernSwap from "../components/swap";
 interface IProps {}
 
 const Tavern: FC<IProps> = () => {
-  const { play, playing } = useAudio("/assets/sounds/door_open.mp3");
+  const { play, playing } = useAudio("/assets/sounds/door_open.mp3", 0.08);
   const [played, setPlayed] = useState(false);
 
   const openDoor = useCallback(() => {

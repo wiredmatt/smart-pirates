@@ -24,7 +24,11 @@ const Home: FC<IProps> = () => {
           <BalancesHUD />
         </div>
         <div className="absolute top-36 text-white px-36 w-full space-y-4">
-          <h1 className="text-4xl text-center text-black">Choose a destination</h1>
+          <div className="text-center">
+            <span className="px-4 inline-flex text-4xl text-center leading-5 font-bold rounded-full bg-black text-white py-5 bg-opacity-70">
+              Choose a destination
+            </span>
+          </div>
           <Destinations />
         </div>
       </div>
