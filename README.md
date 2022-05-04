@@ -43,19 +43,11 @@ That's it! Head over to http://localhost:3000
 
 ![Mines](./docs/3Mines.png)
 
-### Mining Mingame
-
-![Mining](./docs/4Minigame.png)
-
 #### Exploring the mine
 
 The minigame consists on choosing a spot to mine in, you might find gold or stones. In order to mine you need to pay a fee in ETH as shown in the metamask pop-up.
 
 ![Mining](./docs/5Minigame_explore.png)
-
-##### Being unlucky
-
-![Mining](./docs/6Minigame_find_stone.png)
 
 ##### Being lucky
 
