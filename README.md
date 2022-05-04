@@ -71,3 +71,7 @@ Here you can buy Rum and Bread
 ### Your Profile
 
 ![Profile](./docs/11Profile.png)
+
+### Adding tokens to metamask
+
+![AddToken](./docs/12AddTokens.png)
