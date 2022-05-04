@@ -74,4 +74,6 @@ Here you can buy Rum and Bread
 
 ### Adding tokens to metamask
 
+Click on the frame of any token shown in the screen and a Metamask pop-up will be shown allowing you to add the token to your wallet.
+
 ![AddToken](./docs/12AddTokens.png)
