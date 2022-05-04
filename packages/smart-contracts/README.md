@@ -1,8 +1,8 @@
-# Gold and Doubloons
+# Pirate Journey
 
 ## About
 
-This is a simple implementation of [currencies](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/). 
+This is a simple implementation of [currencies](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/)  (ERC-20 tokens). 
 
 In the era of pirates, `doubloons` were the common currency.
 
@@ -10,9 +10,9 @@ A [doubloon](https://en.wikipedia.org/wiki/Doubloon) is made out of `gold`.
 
 `Gold` is found in `mines`.
 
-You use `doubloons` to buy `bread`.
+You use `doubloons` to buy `bread` and `rum`.
 
-Find a mine -> look for gold -> find it -> melt it and get doubloons out of it -> buy bread.
+Find a mine -> look for gold -> find it -> melt it and get doubloons out of it -> buy bread and rum
 
 ## Set up
 
@@ -26,7 +26,7 @@ yarn install
 
 ## Contents
 
-This project contains multiple Smart Contracts, [`Gold`](./contracts/Gold.sol), [`Doubloon`](./contracts/Doubloon.sol), [`GoldMine`](./contracts/GoldMine.sol), [`Stone`](./contracts/Stone.sol) and [`Bread`](./contracts/Bread.sol)
+This project contains multiple Smart Contracts, [`Gold`](./contracts/Gold.sol), [`Doubloon`](./contracts/Doubloon.sol), [`GoldMine`](./contracts/GoldMine.sol), [`Stone`](./contracts/Stone.sol), [`Bread`](./contracts/Bread.sol) and [`Rum`](./contracts/Rum.sol)
 
 ## Inspecting the smart contracts
 
@@ -93,7 +93,7 @@ function lookForGold(uint256 spot) public payable {
 }
 ```
 
-To be able to find some gold, you have to pay a fee (to use the equipment and the paths built beforehand, duh). This is why this function has the modifier `payable`, this means that when you call this function you should send a specified amount of ETH, if you send less you won't be able to enter the mine
+To be able to find some gold, you have to pay a fee (to use the equipment and the paths built beforehand). This is why this function has the modifier `payable`, this means that when you call this function you should send a specified amount of ETH, if you send less you won't be able to enter the mine
 
 You should also choose a `spot` in which to look for some gold. Think of it this way:
 
@@ -101,12 +101,11 @@ You should also choose a `spot` in which to look for some gold. Think of it this
  0  1  2  3  4  5  6  7  8  9
 -------------------------------
 |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |
 -------------------------------
 
 ```
 
-A mine can have 9 paths in which to look for gold, you can only choose one at a time
+A mine can have 9 spots in which to look for gold, you can only choose one at a time
 
 ### Doubloon
 
@@ -128,10 +127,10 @@ function makeDoubloon(uint256 goldAmount) external {
 }
 ```
 
-This function checks for an `allowance`. It's basically asking the Gold contract if the sender really approves for his Gold ingots to be used by this contract. An allowance can be granted by calling the following function beforehand:
+This function checks for an `allowance`. It's basically asking the Gold contract if the sender really approves for his Gold to be used by this contract. An allowance can be granted by calling the following function beforehand:
 
 ```solidity
-gold.approve(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c, goldAmount);
+gold.approve(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c, goldAmount); // the first argument is the address that you want to allow to use your tokens, the second argument, the exact amount you allow it to use from your balance.
 ```
 
 `approve` is an internal method of the ERC20 token, it does exactly what was described before, it allows another contract to use your tokens on your behalf
@@ -141,19 +140,41 @@ gold.approve(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c, goldAmount);
 Now with some doubloons you can buy bread!
 
 ```solidity
-function bake() external {
-    uint256 amount = doubloon.allowance(msg.sender, address(this));
-    require(amount > 0, "Start the trade first");
-    
-    doubloon.transferFrom(msg.sender, baker, amount); // pay the baker
-        
-    _mint(msg.sender, amount * 10); // receive 10 slices of bread for each doubloon
+/**
+* @param amount the amount of doubloons to use in this trade
+*/
+function buy(uint256 amount) external {
+    doubloon.transferFrom(msg.sender, merchant, amount); // pay the baker
+    _mint(msg.sender, (amount / EXCHANGE_RATE) * 10 ** decimals()); // bake the bread
 }
 ```
 
 To buy bread, one needs to *start the trade*, by allowing to use a given amount of doubloons
 
 Then the bread will be baked, the pirate will receive 10 slices of bread for each doubloon paid!
+
+Why `(amount / EXCHANGE_RATE) * 10 ** decimals()` and not just `(amount / EXCHANGE_RATE)`?
+
+If you check the previous contracts, you'll find that they all have their `decimals()` function overrided and set to return 0. This means that Gold, Stone and Doubloons are not divisible, you are not able to fraction these tokens.
+
+However, you can totally fraction Bread in slices, so it makes sense that the Bread Token has decimals. By default every Token that inherits from ERC20 has 18 decimals, which is fine for the case of Bread.
+
+<details>
+<summary>Further technical explanation</summary>
+
+# A note on decimals
+
+Often, you’ll want to be able to divide your tokens into arbitrary amounts: say, if you own 5 BRD, you may want to send 1.5 BRD to a friend, and keep 3.5 BRD to yourself. Unfortunately, Solidity and the EVM do not support this behavior: only integer (whole) numbers can be used, which poses an issue. You may send 1 or 2 tokens, but not 1.5.
+
+To work around this, ERC20 provides a decimals field, which is used to specify how many decimal places a token has. To be able to transfer 1.5 BRD, decimals must be at least 1, since that number has a single decimal place.
+
+How can this be achieved? It’s actually very simple: a token contract can use larger integer values, so that a balance of 50 will represent 5 BRD, a transfer of 15 will correspond to 1.5 BRD being sent, and so on.
+
+It is important to understand that decimals is only used for display purposes. All arithmetic inside the contract is still performed on integers, and it is the different user interfaces (wallets, exchanges, etc.) that must adjust the displayed values according to decimals. The total token supply and balance of each account are not specified in BRD: you need to divide by 10^decimals to get the actual BRD amount.
+
+You’ll probably want to use a decimals value of 18, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number num BRD * 10^decimals.
+
+</details>
 
 ## Hardhat
 
@@ -256,5 +277,5 @@ You can't start your journey sober, buy some Rum first.
 
 ```bash
 yarn hardhat create-rum --network development
-yarn hardhat buy-rum 3 --network development # pay with 3 doubloons to get a bottle of Rum.
+yarn hardhat buy-rum 5 --network development # pay with 5 doubloons to get a bottle of Rum.
 ```

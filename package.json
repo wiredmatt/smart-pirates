@@ -9,7 +9,6 @@
   ],
   "scripts": {
     "sc": "yarn workspace @smart-pirates/smart-contracts",
-    "backend": "yarn workspace @smart-pirates/backend",
     "dapp": "yarn workspace @smart-pirates/dapp"
   }
 }
