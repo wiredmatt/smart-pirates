@@ -15,9 +15,9 @@ import Metamask from "../../icons/metamask";
 import {
   changeNetwork,
   formatAddress,
-  getRandomPirateAvatar,
 } from "../../utils/web3";
 import { useIsMounted } from "../../hooks/useIsMounted";
+import { getRandomPirateAvatar } from "../../utils/web3/pirateGenerator";
 
 interface IProps {}
 

@@ -93,21 +93,6 @@ export const formatAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(36, 42)}`;
 };
 
-export const getRandomPirateAvatar = (address: string) => {
-  let hash = 0,
-    len = address.length;
-  for (let i = 0; i < len; i++) {
-    hash = (hash << 5) - hash + address.charCodeAt(i);
-    hash |= 0; // to 32bit integer
-  }
-
-  let pirateId = hash.toString()[0];
-
-  let pirateIcon = "/assets/pirates/" + pirateId + ".png";
-
-  return pirateIcon;
-};
-
 export class SmartContract {
   name: string;
   abi: any;
@@ -145,10 +130,14 @@ export class SmartContract {
     );
   }
 
-  async connect(provider: ethers.providers.Provider, signer: ethers.Signer) {
+  async connect(provider: ethers.providers.Provider, signer?: ethers.Signer) {
     this.provider = provider;
     this.signer = signer;
-    this.instance = new ethers.Contract(this.address, this.abi, this.signer);
+    this.instance = new ethers.Contract(
+      this.address,
+      this.abi,
+      this.signer || this.provider
+    );
   }
 }
 
@@ -281,24 +270,24 @@ export const currencies = {
   ),
 };
 
-export const items: Item[] = [
-  new Item(
+export const items = {
+  bread: new Item(
     "Bread",
     BreadABI,
     BreadData.address,
     "Looks edible...",
-    0,
+    18,
     currencies.doubloon
   ),
-  new Item(
+  rum: new Item(
     "Rum",
     RumABI,
     RumData.address,
-    "Getting drunk might make your journey easier, you might finish it sooner than you thought thanks to it! (Definitely not because you'd be more likely to die)",
-    0,
+    "Getting drunk may make your journey easier, you might finish it sooner than you thought thanks to it! (Definitely not because you'd be more likely to die)",
+    18,
     currencies.doubloon
   ),
-];
+};
 
 export const GoldMines: GoldMine[] = GoldMinesData.map(
   (gm, i) =>

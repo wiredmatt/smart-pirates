@@ -21,7 +21,7 @@ const TokenFrame: FC<IProps> = ({
 }) => {
   return (
     <div
-      className="h-32 w-32 relative text-black font-black rounded-xl  hover:scale-105 transition-transform cursor-pointer"
+      className="h-32 w-32 relative text-black font-black rounded-xl hover:scale-105 transition-transform cursor-pointer"
       title={description + "\nClick to add to Metamask"}
       onClick={() => {
         window.ethereum
@@ -66,9 +66,7 @@ const TokenFrame: FC<IProps> = ({
         </span>
       </div>
       <img
-        className="z-10 absolute top-12 left-12"
-        width={40}
-        height={40}
+        className="z-10 absolute top-10 left-12 w-1/3 h-1/3"
         src={icon}
         alt={name}
       ></img>

@@ -20,6 +20,7 @@ import Tavern from "./pages/Tavern";
 import Mines from "./pages/Mines";
 import GoldMineInside from "./pages/GoldMineInside";
 import Forge from "./pages/Forge";
+import PirateProfile from "./pages/PirateProfile";
 
 const client = createClient({
   autoConnect: true,
@@ -43,6 +44,7 @@ const App: FC = () => {
             <Route path="/forge" element={<Forge />} />
             <Route path="/mines" element={<Mines />} />
             <Route path="/mine/:address" element={<GoldMineInside />} />
+            <Route path="/pirate/:address" element={<PirateProfile />} />
           </Routes>
         </Layout>
       </ThemeProvider>

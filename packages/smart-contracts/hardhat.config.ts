@@ -368,7 +368,7 @@ task("buy-bread", "Give your doubloons, receive bread")
     const approveTx = await doubloon.approve(bread.address, amount);
     await approveTx.wait();
 
-    await bread.buy();
+    await bread.buy(amount);
 
     const breadSlices = await bread.balanceOf(process.env.PUBLIC_KEY!);
 
@@ -406,7 +406,7 @@ task("buy-Rum", "Give your doubloons, receive Rum")
     const approveTx = await doubloon.approve(rum.address, amount);
     await approveTx.wait();
 
-    await rum.buy();
+    await rum.buy(amount);
 
     const RumSlices = await rum.balanceOf(process.env.PUBLIC_KEY!);
 
@@ -416,9 +416,6 @@ task("buy-Rum", "Give your doubloons, receive Rum")
       "Now that you're fed and drunk, and have some coin on, you can continue your journey!"
     );
   });
-
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
   solidity: "0.8.4",

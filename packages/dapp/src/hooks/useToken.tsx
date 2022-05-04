@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
-import { currencies, resources, Token } from "../utils/web3";
+import { useAccount, useProvider } from "wagmi";
+import { chains, currencies, items, resources, Token } from "../utils/web3";
 
-export const useToken = (token: Token) => {
+export const useToken = (token: Token, address?: string) => {
   const { data: account } = useAccount();
   const [balance, setBalance] = useState<string>("0");
   const [name, setName] = useState<string>("Token");
@@ -10,6 +10,8 @@ export const useToken = (token: Token) => {
   const [icon, setIcon] = useState<string>("");
   const [description, setDescription] = useState<string>("A token");
   const [exchangeRate, setExchangeRate] = useState<number>(0);
+
+  const _provider = useProvider({ chainId: chains[0].id }); // provider to use if user is not authenticated
 
   useEffect(() => {
     (async () => {
@@ -41,7 +43,7 @@ export const useToken = (token: Token) => {
         const _exchangeRate = await token.exchangeRate();
         setExchangeRate(parseInt(_exchangeRate));
       } catch (e) {
-        console.log(e);
+        console.log(e); // token doesn't have exchange rate defined
       }
 
       const name = await token.instance.name();
@@ -52,10 +54,24 @@ export const useToken = (token: Token) => {
 
       setIcon(`/assets/tokens/${symbol}.png`);
       setDescription(token.description);
+
+      if (address) {
+        await token.connect(_provider);
+        const balance = await token.balanceOf(address);
+
+        setBalance(balance.toString());
+
+        token.instance.on("Transfer", async (from, to, __, ___) => {
+          if (to === address || from === address) {
+            const balance = await token.balanceOf(address);
+            setBalance(balance.toString());
+          }
+        });
+      }
     })();
 
     return () => {};
-  }, [account, account?.address, token]);
+  }, [account, account?.address, token, _provider, address]);
 
   const allowance = async (address: string) => {
     const _allowance = await token.instance.allowance(
@@ -78,10 +94,14 @@ export const useToken = (token: Token) => {
   };
 };
 
-export const useCurrency = (currency: "doubloon") => {
-  return useToken(currencies[currency]);
+export const useCurrency = (currency: "doubloon", address?: string) => {
+  return useToken(currencies[currency], address);
 };
 
-export const useResource = (resource: "gold" | "stone") => {
-  return useToken(resources[resource]);
+export const useResource = (resource: "gold" | "stone", address?: string) => {
+  return useToken(resources[resource], address);
+};
+
+export const useItem = (item: "bread" | "rum", address?: string) => {
+  return useToken(items[item], address);
 };

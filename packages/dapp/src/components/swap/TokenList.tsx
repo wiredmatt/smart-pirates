@@ -12,7 +12,8 @@ const TokenList: FC<IProps> = () => {
   // const token = useToken(defaultToken || currencies.doubloon);
 
   return (
-    <Dropdown />
+    <div></div>
+    // <Dropdown />
     // <div>
     //   <button
     //     id="dropdownDefault"

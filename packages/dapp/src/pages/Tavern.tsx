@@ -2,6 +2,7 @@ import { FC, useCallback, useEffect, useState } from "react";
 import Back from "../components/Back";
 import BalancesHUD from "../components/web3/BalancesHUD";
 import useAudio from "../hooks/useAudio";
+import TavernSwap from "../components/swap";
 
 interface IProps {}
 
@@ -36,8 +37,14 @@ const Tavern: FC<IProps> = () => {
         <div className="absolute top-4 right-14 text-white space-x-1">
           <BalancesHUD />
         </div>
-        <div className="absolute top-24 text-white px-8">
-          <span>hello world</span>
+
+        <div className="absolute top-28 text-white px-36 w-full space-y-12">
+          <h1 className="text-4xl text-center text-white ">
+            Specify the amount of Doubloons to spend
+          </h1>
+          <div className="h-full flex flex-row justify-center">
+            <TavernSwap canChangeOut={true} />
+          </div>
         </div>
       </div>
     </div>

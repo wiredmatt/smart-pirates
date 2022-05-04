@@ -6,7 +6,7 @@ import useAudio from "../hooks/useAudio";
 interface IProps {}
 
 const Home: FC<IProps> = () => {
-  const { play } = useAudio("/assets/sounds/main.mp3", 0.01);
+  const { play } = useAudio("/assets/sounds/main.mp3", 0.016);
 
   useEffect(() => {
     play();

@@ -1,20 +1,18 @@
 import { FC } from "react";
-import { useCurrency, useResource } from "../../hooks/useToken";
+import { useItem } from "../../hooks/useToken";
 import TokenFrame from "./TokenFrame";
 
 interface IProps {
-  address?: string;
+  address: string;
 }
 
-const BalancesHUD: FC<IProps> = ({ address }) => {
-  const DBL = useCurrency("doubloon", address);
-
-  const GLD = useResource("gold", address);
-  const STN = useResource("stone", address);
+const ItemsHUD: FC<IProps> = ({address}) => {
+  const BRD = useItem("bread", address);
+  const RUM = useItem("rum", address);
 
   return (
     <div className="flex flex-row space-x-4 justify-center">
-      {[DBL, GLD, STN].map((token, i) => (
+      {[BRD, RUM].map((token, i) => (
         <TokenFrame
           key={i}
           name={token.name}
@@ -30,4 +28,4 @@ const BalancesHUD: FC<IProps> = ({ address }) => {
   );
 };
 
-export default BalancesHUD;
+export default ItemsHUD;
