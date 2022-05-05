@@ -1,6 +1,7 @@
+import { formatEther } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
-import { useAccount, useProvider } from "wagmi";
-import { chains, currencies, items, resources, Token } from "../utils/web3";
+import { useAccount } from "wagmi";
+import { currencies, items, resources, Token } from "../utils/web3";
 
 export const useToken = (token: Token, address?: string) => {
   const { data: account } = useAccount();
@@ -11,8 +12,6 @@ export const useToken = (token: Token, address?: string) => {
   const [description, setDescription] = useState<string>("A token");
   const [exchangeRate, setExchangeRate] = useState<number>(0);
 
-  const _provider = useProvider({ chainId: chains[0].id }); // provider to use if user is not authenticated
-
   useEffect(() => {
     (async () => {
       if (account?.address) {
@@ -22,8 +21,8 @@ export const useToken = (token: Token, address?: string) => {
 
           if (signer) {
             await token.connect(provider, signer);
-            const balance = await token.balanceOf(account.address);
 
+            const balance = await token.balanceOf(account.address);
             setBalance(balance.toString());
 
             token.instance.on("Transfer", async (from, to, __, ___) => {
@@ -43,7 +42,7 @@ export const useToken = (token: Token, address?: string) => {
         const _exchangeRate = await token.exchangeRate();
         setExchangeRate(parseInt(_exchangeRate));
       } catch (e) {
-        console.log(e); // token doesn't have exchange rate defined
+        console.log("token doesn't have exchange rate defined");
       }
 
       const name = await token.instance.name();
@@ -56,7 +55,10 @@ export const useToken = (token: Token, address?: string) => {
       setDescription(token.description);
 
       if (address) {
-        await token.connect(_provider);
+        if (token.provider) {
+          token.connect(token.provider);
+        }
+
         const balance = await token.balanceOf(address);
 
         setBalance(balance.toString());
@@ -71,7 +73,7 @@ export const useToken = (token: Token, address?: string) => {
     })();
 
     return () => {};
-  }, [account, account?.address, token, _provider, address]);
+  }, [account, account?.address, token, address]);
 
   const allowance = async (address: string) => {
     const _allowance = await token.instance.allowance(
@@ -103,5 +105,9 @@ export const useResource = (resource: "gold" | "stone", address?: string) => {
 };
 
 export const useItem = (item: "bread" | "rum", address?: string) => {
-  return useToken(items[item], address);
+  const _item = useToken(items[item], address);
+
+  _item.balance = formatEther(_item.balance).toString();
+
+  return _item;
 };

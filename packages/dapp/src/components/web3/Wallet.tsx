@@ -1,21 +1,12 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useEnsAvatar,
-  useEnsName,
-} from "wagmi";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 import { Avatar, IconLockClosed } from "degen";
 import Button from "../Button";
 
 import Metamask from "../../icons/metamask";
-import {
-  changeNetwork,
-  formatAddress,
-} from "../../utils/web3";
+import { changeNetwork, formatAddress } from "../../utils/web3";
 import { useIsMounted } from "../../hooks/useIsMounted";
 import { getRandomPirateAvatar } from "../../utils/web3/pirateGenerator";
 
@@ -33,12 +24,30 @@ const Account: FC<IProps> = () => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
-  const { data: ensNameData } = useEnsName({ address: accountData?.address });
-  const { data: ensAvatarData } = useEnsAvatar({
-    addressOrName: accountData?.address,
-  });
-
   const isMounted = useIsMounted();
+
+  const [requested, setRequested] = useState(false);
+
+  useEffect(() => {
+    const checkNetwork = async () => {
+      setRequested(true);
+      if (window.ethereum) {
+        const currentChainId = await window.ethereum.request({
+          method: "eth_chainId",
+        });
+
+        if (currentChainId !== connectors[0].chains[0] && !requested) {
+          throw Error("Wrong Network");
+        }
+      }
+    };
+
+    if (accountData?.address) {
+      checkNetwork().catch(async () => {
+        !requested && (await changeNetwork(connectors[0].chains[0]));
+      });
+    }
+  }, [accountData, connectors, requested]);
 
   return (
     <div>
@@ -48,23 +57,16 @@ const Account: FC<IProps> = () => {
             <div className="transition hover:scale-110">
               <div className="align-middle flex flex-row justify-between space-x-4">
                 <Avatar
-                  src={
-                    (ensAvatarData as any) ||
-                    getRandomPirateAvatar(accountData.address!)
-                  }
+                  src={getRandomPirateAvatar(accountData.address!)}
                   label="ENS Avatar"
                 />
                 <div>
                   <p className="font-bold text-xl">
-                    {ensNameData
-                      ? `${ensNameData} (${formatAddress(
-                          accountData.address!
-                        )})`
-                      : formatAddress(accountData.address!)}
+                    {formatAddress(accountData.address!)}
                   </p>
                   <p>
                     Connected to{" "}
-                    {isMounted && accountData?.connector
+                    {accountData?.connector
                       ? accountData.connector.name
                       : "Unknown wallet"}
                   </p>
@@ -88,7 +90,6 @@ const Account: FC<IProps> = () => {
               key={c.name}
               onClick={async () => {
                 connect(c); // get permission to use metamask
-                await changeNetwork(c.chains[0]);
               }}
               leftIcon={
                 connectorProps.find(

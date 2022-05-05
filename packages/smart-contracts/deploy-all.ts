@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import { exec } from "child_process";
 
 const tokens = {
@@ -18,7 +20,7 @@ const main = async () => {
   for (let i = 0; i < sortedTokens.length; i++) {
     await new Promise((resolve, reject) =>
       exec(
-        `yarn hardhat create-${sortedTokens[i]} --network development`,
+        `yarn hardhat create-${sortedTokens[i]} --network ${process.env.NETWORK}`,
         (error, stdout, stederr) => {
           if (error) {
             console.log(`[deploy-${sortedTokens[i]}] - Error:`, error);
@@ -44,7 +46,7 @@ const main = async () => {
   for (let i = 0; i < goldMines; i++) {
     await new Promise((resolve, reject) =>
       exec(
-        `yarn hardhat open-gold-mine --network development`,
+        `yarn hardhat open-gold-mine --network ${process.env.NETWORK}`,
         (error, stdout, stederr) => {
           if (error) {
             console.log(`[open-gold-mine] - Error:`, error);

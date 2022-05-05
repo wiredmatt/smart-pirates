@@ -1,5 +1,4 @@
-import * as dotenv from "dotenv";
-dotenv.config();
+require("dotenv").config();
 
 import { HardhatUserConfig, task, types } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
@@ -15,7 +14,7 @@ import { parse, stringify } from "envfile";
 import { writeFile, mkdirp, writeJSON } from "fs-extra";
 
 const abisDir = `${__dirname}/../dapp/src/utils/web3/contracts/abis`;
-const tokensDir = `${__dirname}/../dapp/src/utils/web3/contracts/data`;
+const tokensDir = `${__dirname}/../dapp/src/utils/web3/contracts/data/${process.env.NETWORK}`;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -56,7 +55,7 @@ task(
 
 task("create-gold", "Creates Gold").setAction(async (_, hre) => {
   await utils.setup();
-  const logFile = utils.read();
+  const logFile = utils.read(); // {}
 
   const Gold = await hre.ethers.getContractFactory("Gold");
   const gold = await Gold.deploy();
@@ -432,6 +431,11 @@ const config: HardhatUserConfig = {
       chainId: 1337,
       from: process.env.PRIVATE_KEY,
       url: "http://localhost:8545",
+    },
+    mumbai: {
+      url: process.env.MUMBAI_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
   gasReporter: {

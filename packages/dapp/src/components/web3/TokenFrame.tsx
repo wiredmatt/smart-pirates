@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { toast } from "react-toastify";
 
 interface IProps {
   name: string;
@@ -39,9 +40,9 @@ const TokenFrame: FC<IProps> = ({
           })
           .then((success) => {
             if (success) {
-              console.log("added token");
+              toast.info("Token added to Metamask");
             } else {
-              console.log("nani");
+              toast.error("User rejected to add token");
             }
           });
       }}

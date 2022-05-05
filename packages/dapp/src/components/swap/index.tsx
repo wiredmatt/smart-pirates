@@ -60,10 +60,7 @@ const Swap: FC<IProps> = ({ canChangeOut }) => {
               symbol={currencySymbol}
               amount={tokenInAmount}
               onClick={async () => {
-                const tx = await currencies.doubloon.approve(
-                  tokenInAmount,
-                  tokenOut?.address
-                );
+                const tx = await tokenOut.approveTrade(tokenInAmount);
 
                 await tx.wait();
 
@@ -80,6 +77,7 @@ const Swap: FC<IProps> = ({ canChangeOut }) => {
                   const tx = await tokenOut.instance.buy(tokenInAmount);
 
                   await tx.wait();
+
                   setTokenInAmount(1);
                   const _allowance = await allowance(
                     currencies.doubloon.address

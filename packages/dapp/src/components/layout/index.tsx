@@ -5,6 +5,7 @@ import Header from "./Header";
 interface IProps {}
 
 const Layout: FC<PropsWithChildren<IProps>> = ({ children }) => {
+
   return (
     <div className="bg-paper-pattern w-full min-h-screen bg-no-repeat bg-cover">
       <Header />

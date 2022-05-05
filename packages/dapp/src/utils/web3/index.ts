@@ -1,27 +1,24 @@
 import { toast } from "react-toastify";
 import { Chain } from "wagmi";
 import { ethers } from "ethers";
-
-import GoldABI from "./contracts/abis/Gold.json";
-import StoneABI from "./contracts/abis/Stone.json";
-import DoubloonABI from "./contracts/abis/Doubloon.json";
-import GoldMineABI from "./contracts/abis/GoldMine.json";
-import BreadABI from "./contracts/abis/Bread.json";
-import RumABI from "./contracts/abis/Rum.json";
-
-import GoldData from "./contracts/data/Gold.json";
-import StoneData from "./contracts/data/Stone.json";
-import DoubloonData from "./contracts/data/Doubloon.json";
-import GoldMinesData from "./contracts/data/GoldMines.json";
-import BreadData from "./contracts/data/Bread.json";
-import RumData from "./contracts/data/Rum.json";
+import {
+  BreadABI,
+  DoubloonABI,
+  GoldABI,
+  GoldMineABI,
+  RumABI,
+  StoneABI,
+  getContractData,
+  getGoldMinesData,
+} from "./contracts";
 
 export const chains: Chain[] = [
   {
-    id: 1337,
+    id: parseInt(process.env.REACT_APP_CHAINID || "1337"),
     name: process.env.REACT_APP_BLOCKCHAIN || "development", // development | mumbai | Matic Mainnet
     rpcUrls: {
       default: process.env.REACT_APP_RPC || "http://localhost:8545", // http://localhost:8545 | https://matic-mumbai.chainstacklabs.com | https://polygon-rpc.com/
+      alchemy: process.env.REACT_APP_ALCHEMY || "",
     },
     nativeCurrency: {
       name: "MATIC",
@@ -43,45 +40,28 @@ export const chains: Chain[] = [
 
 export const changeNetwork = async (chain: Chain) => {
   if (window.ethereum) {
-    try {
-      if (process.env.NODE_ENV === "development") {
-        (window.ethereum as any).networkVersion !== "1337" &&
-          toast.info(
-            "[This message is only shown in development] Remember to switch manually to Localhost:8545 network. Switching automatically as with Mumbai doesn't work due to a metamask bug.",
-            {
-              autoClose: 10000,
-              closeOnClick: true,
-            }
-          );
-      } else {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [
-            {
-              chainId: "0x" + chain.id.toString(16),
-            },
-          ],
-        });
-      }
-    } catch (error) {
-      try {
-        console.log("adding chain");
-        await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: "0x" + chain.id.toString(16),
-              chainName: chain.name,
-              nativeCurrency: chain.nativeCurrency,
-              rpcUrls: [chain.rpcUrls.default],
-              blockExplorerUrls: [chain.blockExplorers?.default.url || ""],
-            },
-          ],
-        });
-      } catch (addError) {
-        console.error(addError);
-      }
-      console.error(error);
+    if (process.env.REACT_APP_BLOCKCHAIN === "development") {
+      (window.ethereum as any).networkVersion !== "1337" &&
+        toast.info(
+          "[This message is only shown in development] Remember to switch manually to Localhost:8545 network. Switching automatically as with Mumbai doesn't work due to a metamask bug.",
+          {
+            autoClose: 10000,
+            closeOnClick: true,
+          }
+        );
+    } else {
+      window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: "0x" + chain.id.toString(16),
+            chainName: chain.name,
+            nativeCurrency: chain.nativeCurrency,
+            rpcUrls: [chain.rpcUrls.default],
+            blockExplorerUrls: [chain.blockExplorers?.default.url || ""],
+          },
+        ],
+      }).catch(() => console.log("user rejected"))
     }
   } else {
     alert("Metamask not installed");
@@ -108,7 +88,10 @@ export class SmartContract {
     _abi: any,
     _address: string,
     _description: string,
-    _provider?: ethers.providers.Web3Provider | undefined,
+    _provider?:
+      | ethers.providers.Web3Provider
+      | ethers.providers.AlchemyProvider
+      | undefined,
     _signer?: ethers.Signer
   ) {
     this.name = _name;
@@ -116,11 +99,16 @@ export class SmartContract {
     this.address = _address;
     this.description = _description;
     this.provider =
-      _provider ||
-      new ethers.providers.JsonRpcProvider(undefined, {
-        chainId: 1337,
-        name: "development",
-      });
+      process.env.REACT_APP_BLOCKCHAIN === "development"
+        ? new ethers.providers.JsonRpcProvider(undefined, {
+            chainId: parseInt(process.env.REACT_APP_CHAINID || "1337"),
+            name: process.env.REACT_APP_BLOCKCHAIN || "development",
+          })
+        : new ethers.providers.AlchemyProvider(
+            "maticmum",
+            process.env.REACT_APP_ALCHEMY_KEY
+          );
+
     this.signer = _signer;
 
     this.instance = new ethers.Contract(
@@ -133,6 +121,7 @@ export class SmartContract {
   async connect(provider: ethers.providers.Provider, signer?: ethers.Signer) {
     this.provider = provider;
     this.signer = signer;
+
     this.instance = new ethers.Contract(
       this.address,
       this.abi,
@@ -235,7 +224,7 @@ export class Item extends Token {
   }
 
   async approveTrade(amount: number) {
-    await this.doubloon.approve(amount, this.address); // approves sending DBL from user wallet to the merchant
+    return await this.doubloon.approve(amount, this.address); // approves sending DBL from user wallet
   }
 
   async buy() {
@@ -247,14 +236,14 @@ export const resources = {
   gold: new Token(
     "Gold",
     GoldABI,
-    GoldData.address,
+    getContractData("gold").address,
     "Gold, a resource that can be found in Gold mines and exchanged for Doubloons",
     0
   ),
   stone: new Token(
     "Stone",
     StoneABI,
-    StoneData.address,
+    getContractData("stone").address,
     "Stone, a resource found in mines, quite useless",
     0
   ),
@@ -264,7 +253,7 @@ export const currencies = {
   doubloon: new Token(
     "Doubloon",
     DoubloonABI,
-    DoubloonData.address,
+    getContractData("doubloon").address,
     "Doubloon, the main currency used by pirates, with it you can buy anything you'd like from The Tavern",
     0
   ),
@@ -274,7 +263,7 @@ export const items = {
   bread: new Item(
     "Bread",
     BreadABI,
-    BreadData.address,
+    getContractData("bread").address,
     "Looks edible...",
     18,
     currencies.doubloon
@@ -282,14 +271,14 @@ export const items = {
   rum: new Item(
     "Rum",
     RumABI,
-    RumData.address,
+    getContractData("rum").address,
     "Getting drunk may make your journey easier, you might finish it sooner than you thought thanks to it! (Definitely not because you'd be more likely to die)",
     18,
     currencies.doubloon
   ),
 };
 
-export const GoldMines: GoldMine[] = GoldMinesData.map(
+export const GoldMines: GoldMine[] = getGoldMinesData().map(
   (gm, i) =>
     new GoldMine(
       `GoldMine #${i + 1} ${formatAddress(gm)}`,
