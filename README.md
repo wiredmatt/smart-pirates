@@ -3,6 +3,7 @@
 </p>
 
 <h1 align="center">Pirate Journey</h1>
+[Demo](https://smart-pirates.netlify.app/)
 
 This project follows the monorepo architecture using yarn workspaces.
 
