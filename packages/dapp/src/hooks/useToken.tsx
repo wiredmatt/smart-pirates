@@ -1,6 +1,6 @@
 import { formatEther } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useConnect } from "wagmi";
 import { currencies, items, resources, Token } from "../utils/web3";
 
 export const useToken = (token: Token, address?: string) => {
@@ -11,6 +11,7 @@ export const useToken = (token: Token, address?: string) => {
   const [icon, setIcon] = useState<string>("");
   const [description, setDescription] = useState<string>("A token");
   const [exchangeRate, setExchangeRate] = useState<number>(0);
+  const { connectors } = useConnect();
 
   useEffect(() => {
     (async () => {
@@ -18,8 +19,9 @@ export const useToken = (token: Token, address?: string) => {
         if (account.connector?.getProvider) {
           const provider = await account.connector?.getProvider();
           const signer = await account.connector?.getSigner();
+          const chainId = await account.connector.getChainId();
 
-          if (signer) {
+          if (signer && chainId === connectors[0].chains[0].id) {
             await token.connect(provider, signer);
 
             const balance = await token.balanceOf(account.address);
@@ -72,8 +74,14 @@ export const useToken = (token: Token, address?: string) => {
       }
     })();
 
-    return () => {};
-  }, [account, account?.address, token, address]);
+  }, [
+    connectors,
+    account,
+    account?.address,
+    account?.connector,
+    token,
+    address,
+  ]);
 
   const allowance = async (address: string) => {
     const _allowance = await token.instance.allowance(
