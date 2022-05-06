@@ -50,22 +50,31 @@ export const changeNetwork = async (chain: Chain) => {
           }
         );
     } else {
-      window.ethereum.request({
-        method: "wallet_addEthereumChain",
-        params: [
-          {
-            chainId: "0x" + chain.id.toString(16),
-            chainName: chain.name,
-            nativeCurrency: chain.nativeCurrency,
-            rpcUrls: [chain.rpcUrls.default],
-            blockExplorerUrls: [chain.blockExplorers?.default.url || ""],
-          },
-        ],
-      }).catch(() => console.log("user rejected"))
+      window.ethereum
+        .request({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: "0x" + chain.id.toString(16),
+              chainName: chain.name,
+              nativeCurrency: chain.nativeCurrency,
+              rpcUrls: [chain.rpcUrls.default],
+              blockExplorerUrls: [chain.blockExplorers?.default.url || ""],
+            },
+          ],
+        })
+        .then(() => {
+          return true;
+        })
+        .catch(() => {
+          console.log("user rejected");
+
+          return false;
+        });
     }
   } else {
     alert("Metamask not installed");
-    return;
+    return false;
   }
 };
 

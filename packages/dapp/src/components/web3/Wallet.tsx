@@ -44,10 +44,13 @@ const Account: FC<IProps> = () => {
 
     if (accountData?.address) {
       checkNetwork().catch(async () => {
-        !requested && (await changeNetwork(connectors[0].chains[0]));
+        if (!requested) {
+          const res = await changeNetwork(connectors[0].chains[0]);
+          res && connect(connectors[0]);
+        }
       });
     }
-  }, [accountData, connectors, requested]);
+  }, [accountData, connectors, requested, connect]);
 
   return (
     <div>
